@@ -1,0 +1,23 @@
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Copy dependency descriptors first to leverage Docker layer caching
+COPY gradlew .
+COPY gradle/ gradle/
+COPY build.gradle settings.gradle ./
+
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
+
+# Source is expected to be mounted at runtime via volume (see usage below)
+# When mounted, DevTools polls for classpath changes and restarts automatically
+COPY src/ src/
+COPY entrypoint.dev.sh .
+RUN chmod +x entrypoint.dev.sh
+
+EXPOSE 8080
+
+# Usage with hot reload:
+#   docker build -f Dockerfile.dev -t parking-backend-dev .
+#   docker run -p 8080:8080 -v "$(pwd)/src:/app/src" parking-backend-dev
+ENTRYPOINT ["./entrypoint.dev.sh"]
