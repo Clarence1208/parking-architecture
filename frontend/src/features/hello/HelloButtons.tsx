@@ -1,41 +1,52 @@
 import { useState } from 'react';
 import { helloService } from '../../services/helloService';
-import { Button } from '../../shared/ui/Button';
-
 export const HelloButtons = () => {
   const [message, setMessage] = useState<string>('');
   const [loading, setLoading] = useState<string | null>(null);
 
-  const handleCall = async (type: 'API' | 'DB' | 'REDIS', call: () => Promise<any>) => {
+  const handleCall = async (type: string, call: () => Promise<any>) => {
     setLoading(type);
     try {
       const data = await call();
       setMessage(`[${type}] : ${data}`);
     } catch (e) {
-      setMessage(`Erreur sur ${type}`);
+      setMessage(`Erreur critique sur la route ${type}`);
     } finally {
       setLoading(null);
     }
   };
 
   return (
-    <div className="flex flex-col items-center gap-12">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <Button onClick={() => handleCall('API', helloService.sayHello)} disabled={!!loading}>
-          {loading === 'API' ? '...' : 'Test Java'}
-        </Button>
+    <div className="hello-feature-container">
+      <div className="buttons-group">
+        <button 
+          className="app-button"
+          onClick={() => handleCall('JAVA', helloService.sayHello)} 
+          disabled={!!loading}
+        >
+          {loading === 'JAVA' ? '...' : 'Hello backend'}
+        </button>
 
-        <Button onClick={() => handleCall('DB', helloService.sayHelloDb)} disabled={!!loading}>
-          {loading === 'DB' ? '...' : 'Test Postgres'}
-        </Button>
+        <button 
+          className="app-button"
+          onClick={() => handleCall('DB', helloService.sayHelloDb)} 
+          disabled={!!loading}
+        >
+          {loading === 'DB' ? '...' : 'Hello DB'}
+        </button>
 
-        <Button onClick={() => handleCall('REDIS', helloService.sayHelloRedis)} disabled={!!loading}>
-          {loading === 'REDIS' ? '...' : 'Test Redis'}
-        </Button>
+        <button 
+          className="app-button"
+          onClick={() => handleCall('REDIS', helloService.sayHelloRedis)} 
+          disabled={!!loading}
+        >
+          {loading === 'REDIS' ? '...' : 'Hello Redis'}
+        </button>
       </div>
 
+      {}
       {message && (
-        <div className="animate-bounce text-xl font-bold text-blue-600 bg-blue-50 px-8 py-4 rounded-2xl border-2 border-blue-200">
+        <div className="status-message">
           {message}
         </div>
       )}

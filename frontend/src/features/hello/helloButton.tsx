@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { helloService } from '../../services/helloService';
-// Import de ton atome UI partagé
 import { Button } from '../../shared/ui/Button';
 
 export const HelloButton = () => {

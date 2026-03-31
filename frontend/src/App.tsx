@@ -1,11 +1,16 @@
+import './App.css';
 import { HelloButtons } from './features/hello/HelloButtons';
 
 function App() {
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="app-container">
+      <header className="app-header">
+        <h1>
+          PARK<span className="brand-highlight">OFFICE</span>
+        </h1>
+      </header>
 
-
-      <main className="flex-grow flex items-center justify-center p-6">
+      <main className="main-content">
         <HelloButtons />
       </main>
     </div>

@@ -13,13 +13,11 @@ export const apiClient = {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // On gère le cas où la réponse est du texte brut (comme ton HelloController)
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       return response.json();
     }
     return response.text() as unknown as T;
   },
-  
-  // Tu pourras ajouter post, put, delete ici plus tard
+
 };
