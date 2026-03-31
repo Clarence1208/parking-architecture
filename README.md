@@ -4,15 +4,16 @@ The projects contains a frontend in React and Typescript and a backend part in J
 
 
 # Launch project
-- Dev environnement (with a watch mode): 
-```bash
-docker compose -f docker-compose.dev.yml up --build
-```
 
-- Prod environnement: 
+You can use those for launching the project in dev (watch mode) or prod environnement.
 ```bash
-docker compose -f docker-compose.yml up --build
+./scripts/launch.sh --dev
+
+//default
+./scripts/launch.sh --prod 
 ```
+By default, it launches a prod env if not specified.
+
 
 ### Contributing
 
@@ -22,10 +23,11 @@ docker compose -f docker-compose.yml up --build
 ./scripts/run-tests.sh
 ```
 
-- With test coverage: 
+- Check the test coverage: 
 ```bash
 ./scripts/run-tests.sh --coverage
 ```
+
 It will run frontend and backend tests in one go.
 
 ### Authors
