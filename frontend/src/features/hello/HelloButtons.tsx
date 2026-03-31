@@ -9,7 +9,7 @@ export const HelloButtons = () => {
     try {
       const data = await call();
       setMessage(`[${type}] : ${data}`);
-    } catch (e) {
+    } catch {
       setMessage(`Erreur critique sur la route ${type}`);
     } finally {
       setLoading(null);
