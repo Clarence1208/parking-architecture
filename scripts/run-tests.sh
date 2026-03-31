@@ -51,3 +51,8 @@ run_backend_tests
 run_frontend_tests
 
 echo "==> All tests completed successfully."
+
+if [[ "$COVERAGE" == "true" ]]; then
+  echo "Coverage reports generated."
+  echo "Backend: http://localhost:63343/parking-architecture/backend/build/reports/jacoco/test/html/index.html"
+fi
