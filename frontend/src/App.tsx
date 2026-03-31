@@ -1,4 +1,3 @@
-// src/App.tsx
 import './App.css';
 import { ParkingMap } from './features/parking/parkingMap';
 

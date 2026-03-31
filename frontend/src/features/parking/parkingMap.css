@@ -1,19 +1,17 @@
 
-/* --- 1. Conteneur Global (Asphalte) --- */
 .parking-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #0f172a; /* Slate 900 */
+  background-color: #0f172a;
   padding: 60px;
   min-width: fit-content;
 }
 
-/* --- 2. Structure des Blocs --- */
 .parking-block-double {
   display: flex;
   flex-direction: column;
-  gap: 0; /* Colle les rangées dos à dos */
+  gap: 0; 
 }
 
 .row-container {
@@ -31,14 +29,13 @@
   user-select: none;
 }
 
-/* --- 3. Grille de Places --- */
+
 .spots-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   gap: 0; 
 }
 
-/* --- 4. Le Spot (Marquage au sol) --- */
 .spot {
   width: 85px;
   height: 130px;
@@ -48,27 +45,21 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
-  
-  /* Lignes de séparation latérales */
+
   border-left: 1px solid #475569;
   border-right: 1px solid #475569;
 }
 
-/* --- 5. Logique d'ouverture vers les routes --- */
-
-/* Rangées A, C, E : Ouvertes vers le BAS (Route/Allée en dessous) */
 .row-A .spot, .row-C .spot, .row-E .spot {
-  border-top: 3px solid #64748b; /* Fond de place en haut */
-  border-bottom: none;          /* OUVERT en bas */
+  border-top: 3px solid #64748b; 
+  border-bottom: none;    
 }
 
-/* Rangées B, D, F : Ouvertes vers le HAUT (Route/Allée au-dessus) */
 .row-B .spot, .row-D .spot, .row-F .spot {
   border-bottom: 3px solid #64748b; /* Fond de place en bas */
   border-top: none;             /* OUVERT en haut */
 }
 
-/* --- 6. Allées de circulation (Driveways) --- */
 .driveway {
   height: 100px;
   width: 100%;
@@ -81,34 +72,27 @@
   user-select: none;
 }
 
-/* --- 7. Style des Voitures (Images PNG) --- */
+
 .car-image {
-  width: 85%; /* S'ajuste à la largeur du spot */
+  width: 85%; 
   height: auto;
   z-index: 2;
   position: relative;
-  
-  /* Ombre portée réaliste pour détacher la voiture du sol */
+
   filter: drop-shadow(0 12px 10px rgba(0,0,0,0.6));
-  
-  /* Animation d'arrivée fluide */
+
   animation: carFadeIn 0.3s ease-out forwards;
   background-color: transparent;
 }
 
-/* --- 8. Logique de Rotation --- */
-
-/* Rangées A, C, E : Doivent regarder vers le BAS */
 .row-A .car-image, .row-C .car-image, .row-E .car-image {
   transform: rotate(180deg);
 }
 
-/* Rangées B, D, F : Doivent regarder vers le HAUT */
 .row-B .car-image, .row-D .car-image, .row-F .car-image {
   transform: rotate(0deg); 
 }
 
-/* --- 9. Détails (ID et Électricité) --- */
 .spot-id {
   position: absolute;
   font-size: 0.7rem;
@@ -117,7 +101,6 @@
   letter-spacing: 0.05em;
 }
 
-/* Placement de l'ID au FOND de la place (opposé à l'ouverture) */
 .row-A .spot-id, .row-C .spot-id, .row-E .spot-id { top: 10px; }
 .row-B .spot-id, .row-D .spot-id, .row-F .spot-id { bottom: 10px; }
 
@@ -128,11 +111,9 @@
   filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.4));
 }
 
-/* Éclair placé à côté de l'ID au fond */
 .row-A .electric-bolt { top: 30px; }
 .row-F .electric-bolt { bottom: 30px; }
 
-/* --- 10. États de Sélection --- */
 .spot:hover:not(.occupied) {
   background-color: rgba(59, 130, 246, 0.05);
 }
@@ -150,11 +131,6 @@
   to { opacity: 1; scale: 1; }
 }
 
-
-/* --- 11. Barre d'action Flottante (Sticky Bottom) --- */
-
-/* On ajoute du padding au conteneur principal pour que la barre 
-   ne recouvre pas les places du bas quand on scroll au max */
 .parking-container {
   padding-bottom: 150px; 
 }
@@ -169,14 +145,12 @@
   align-items: center;
   gap: 25px;
   
-  background-color: #1e293b; /* Slate 800 */
+  background-color: #1e293b; 
   padding: 15px 35px;
-  border-radius: 50px; /* Style "Pill" moderne */
+  border-radius: 50px; 
   border: 1px solid #3b82f6;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
-  z-index: 100; /* Passe au-dessus du parking */
-  
-  /* Animation d'entrée quand elle apparaît */
+  z-index: 100; 
   animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -229,4 +203,29 @@
     transform: translate(-50%, 0); 
     opacity: 1; 
   }
+}
+
+.car-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.driver-name {
+  position: absolute;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.55rem;
+  padding: 1px 3px;
+  border-radius: 2px;
+  max-width: 95%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 5;
 }

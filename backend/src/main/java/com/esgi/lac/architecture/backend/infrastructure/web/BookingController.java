@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+import java.util.List;
+
 
 @Tag(name = "Booking", description = "Parking booking operations")
 @RestController
@@ -26,5 +28,10 @@ public class BookingController {
             (Integer) payload.get("durationDays")
         );
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/spots")
+    public ResponseEntity<List<Map<String, Object>>> getSpots() {
+        return ResponseEntity.ok(bookingUseCase.getAllSpots());
     }
 }
