@@ -14,4 +14,4 @@ function App() {
   );
 }
 
-export default App; // Ne pas oublier cette ligne !
+export default App;
