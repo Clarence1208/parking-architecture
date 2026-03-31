@@ -124,19 +124,44 @@ export const ParkingMap = () => {
       </div>
 
       <div className="parking-container">
-        {renderRow('A')}
-        <div className="driveway">➡</div>
-        <div className="parking-block-double">
-          {renderRow('B')}
-          {renderRow('C')}
+        <div className="parking-board">
+          {/* Continuous SVG Road Overlay */}
+          <svg className="road-svg" viewBox="0 0 1115 1080" preserveAspectRatio="xMidYMid meet">
+            {/* Main Road Surface */}
+            <path 
+              d="M 50,-60 L 50,140 Q 50,180 90,180 L 1025,180 Q 1065,180 1065,220 L 1065,500 Q 1065,540 1025,540 L 90,540 Q 50,540 50,580 L 50,860 Q 50,900 90,900 L 1200,900"
+              fill="none"
+              stroke="#1e293b"
+              strokeWidth="90"
+              strokeLinecap="square"
+            />
+            {/* Dashed Center Line */}
+            <path 
+              d="M 50,-60 L 50,140 Q 50,180 90,180 L 1025,180 Q 1065,180 1065,220 L 1065,500 Q 1065,540 1025,540 L 90,540 Q 50,540 50,580 L 50,860 Q 50,900 90,900 L 1200,900"
+              fill="none"
+              stroke="#facc15"
+              strokeWidth="4"
+              strokeDasharray="15, 15"
+              className="animated-road-line"
+            />
+          </svg>
+
+          <div className="parking-content">
+            {renderRow('A')}
+            <div className="driveway"><span className="arrow-right">➡</span></div>
+            <div className="parking-block-double">
+              {renderRow('B')}
+              {renderRow('C')}
+            </div>
+            <div className="driveway"><span className="arrow-left">⬅</span></div>
+            <div className="parking-block-double">
+              {renderRow('D')}
+              {renderRow('E')}
+            </div>
+            <div className="driveway"><span className="arrow-right">➡</span></div>
+            {renderRow('F')}
+          </div>
         </div>
-        <div className="driveway">⬅</div>
-        <div className="parking-block-double">
-          {renderRow('D')}
-          {renderRow('E')}
-        </div>
-        <div className="driveway">➡</div>
-        {renderRow('F')}
       </div>
 
       {selectedId && (
