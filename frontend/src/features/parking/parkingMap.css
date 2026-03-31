@@ -41,6 +41,21 @@
   transform: translateX(50%);
 }
 
+.clickable-exit {
+  cursor: pointer;
+  background-color: #ef4444; 
+  transition: all 0.2s ease;
+}
+
+.clickable-exit:hover {
+  transform: translateX(50%) scale(1.05); /* maintain centering */
+  box-shadow: 0 6px 12px rgba(239, 68, 68, 0.5);
+}
+
+.clickable-exit:active {
+  transform: translateX(50%) scale(0.95);
+}
+
 .road-svg {
   position: absolute;
   top: 0;

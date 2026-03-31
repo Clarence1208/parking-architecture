@@ -26,6 +26,15 @@ const roadLine = [
 interface Point { x: number; y: number; }
 
 const getSpotConnection = (spotId: string) => {
+  if (spotId === 'EXIT') {
+    return {
+      spotCenter: { x: 1065, y: 1250 },
+      connection: { x: 1065, y: 1150 },
+      roadIndexSegment: 7,
+      row: 'EXIT'
+    };
+  }
+
   const row = spotId.charAt(0);
   const num = parseInt(spotId.slice(1), 10);
   const targetX = 165 + (num - 1) * 85 + 42.5; 
@@ -106,7 +115,11 @@ const getWaypoints = (startId: string | null, targetId: string) => {
            let normAngle;
            
            if (i === points.length - 2) {
-              normAngle = (end.row === 'A' || end.row === 'C' || end.row === 'E') ? 180 : 0;
+              if (end.row === 'EXIT') {
+                 normAngle = 180;
+              } else {
+                 normAngle = (end.row === 'A' || end.row === 'C' || end.row === 'E') ? 180 : 0;
+              }
            } else {
               let angle = Math.round(Math.atan2(next.y - curr.y, next.x - curr.x) * (180 / Math.PI) + 90);
               normAngle = (angle + 360) % 360;
@@ -186,6 +199,34 @@ export const ParkingMap = () => {
     setTimeout(() => {
       setAnimatingSpotId(null);
       setSelectedId(id);
+    }, Math.floor(durationMs));
+  };
+
+  const handleExitClick = () => {
+    if (!selectedId || animatingSpotId) return;
+
+    const previousId = selectedId;
+    setAnimatingSpotId('EXIT');
+    setSelectedId(null);
+    setShowModal(false); // Hide reservation panel if open
+    
+    const waypoints = getWaypoints(previousId, 'EXIT');
+    const { rules, totalDist } = generateKeyframes(waypoints);
+    
+    const durationMs = Math.max(1500, Math.min((totalDist / 400) * 1000, 3500));
+    const durationSec = (durationMs / 1000).toFixed(2);
+
+    setAnimationStyle(`
+      @keyframes driveCarToSpot {
+        ${rules}
+      }
+      .animated-car-drive {
+        animation: driveCarToSpot ${durationSec}s linear forwards;
+      }
+    `);
+
+    setTimeout(() => {
+      setAnimatingSpotId(null);
     }, Math.floor(durationMs));
   };
 
@@ -298,7 +339,12 @@ export const ParkingMap = () => {
             </div>
           )}
           <div className="sign-board sign-entrance">ENTRÉE</div>
-          <div className="sign-board sign-exit">SORTIE</div>
+          <div 
+            className={`sign-board sign-exit ${selectedId ? 'clickable-exit' : ''}`}
+            onClick={handleExitClick}
+          >
+            SORTIE
+          </div>
           {/* Continuous SVG Road Overlay */}
           <svg className="road-svg" viewBox="0 0 1115 1080" preserveAspectRatio="xMidYMid meet">
             {/* Main Road Surface */}
