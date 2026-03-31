@@ -4,8 +4,8 @@ import { ReservationModal } from './reservationModal';
 import type { ParkingSpot } from '../../types/api-model';
 import './parkingMap.css';
 
-import RedCar from '../../assets/cars/red-car.png';
-import BlueCar from '../../assets/cars/blue-car2.png';
+import RedCar from '../../assets/cars/purple-car.png';
+import BlueCar from '../../assets/cars/blue-car.png';
 
 const COLS = Array.from({ length: 10 }, (_, i) => i + 1);
 
