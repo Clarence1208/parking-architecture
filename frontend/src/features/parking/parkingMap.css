@@ -1,0 +1,232 @@
+
+/* --- 1. Conteneur Global (Asphalte) --- */
+.parking-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #0f172a; /* Slate 900 */
+  padding: 60px;
+  min-width: fit-content;
+}
+
+/* --- 2. Structure des Blocs --- */
+.parking-block-double {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Colle les rangées dos à dos */
+}
+
+.row-container {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.row-label {
+  width: 40px;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #334155;
+  text-align: center;
+  user-select: none;
+}
+
+/* --- 3. Grille de Places --- */
+.spots-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0; 
+}
+
+/* --- 4. Le Spot (Marquage au sol) --- */
+.spot {
+  width: 85px;
+  height: 130px;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  
+  /* Lignes de séparation latérales */
+  border-left: 1px solid #475569;
+  border-right: 1px solid #475569;
+}
+
+/* --- 5. Logique d'ouverture vers les routes --- */
+
+/* Rangées A, C, E : Ouvertes vers le BAS (Route/Allée en dessous) */
+.row-A .spot, .row-C .spot, .row-E .spot {
+  border-top: 3px solid #64748b; /* Fond de place en haut */
+  border-bottom: none;          /* OUVERT en bas */
+}
+
+/* Rangées B, D, F : Ouvertes vers le HAUT (Route/Allée au-dessus) */
+.row-B .spot, .row-D .spot, .row-F .spot {
+  border-bottom: 3px solid #64748b; /* Fond de place en bas */
+  border-top: none;             /* OUVERT en haut */
+}
+
+/* --- 6. Allées de circulation (Driveways) --- */
+.driveway {
+  height: 100px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #1e293b;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- 7. Style des Voitures (Images PNG) --- */
+.car-image {
+  width: 85%; /* S'ajuste à la largeur du spot */
+  height: auto;
+  z-index: 2;
+  position: relative;
+  
+  /* Ombre portée réaliste pour détacher la voiture du sol */
+  filter: drop-shadow(0 12px 10px rgba(0,0,0,0.6));
+  
+  /* Animation d'arrivée fluide */
+  animation: carFadeIn 0.3s ease-out forwards;
+  background-color: transparent;
+}
+
+/* --- 8. Logique de Rotation --- */
+
+/* Rangées A, C, E : Doivent regarder vers le BAS */
+.row-A .car-image, .row-C .car-image, .row-E .car-image {
+  transform: rotate(180deg);
+}
+
+/* Rangées B, D, F : Doivent regarder vers le HAUT */
+.row-B .car-image, .row-D .car-image, .row-F .car-image {
+  transform: rotate(0deg); 
+}
+
+/* --- 9. Détails (ID et Électricité) --- */
+.spot-id {
+  position: absolute;
+  font-size: 0.7rem;
+  color: #475569;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+/* Placement de l'ID au FOND de la place (opposé à l'ouverture) */
+.row-A .spot-id, .row-C .spot-id, .row-E .spot-id { top: 10px; }
+.row-B .spot-id, .row-D .spot-id, .row-F .spot-id { bottom: 10px; }
+
+.electric-bolt {
+  position: absolute;
+  color: #fbbf24;
+  font-size: 0.9rem;
+  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.4));
+}
+
+/* Éclair placé à côté de l'ID au fond */
+.row-A .electric-bolt { top: 30px; }
+.row-F .electric-bolt { bottom: 30px; }
+
+/* --- 10. États de Sélection --- */
+.spot:hover:not(.occupied) {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.spot.my-selection {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.spot.occupied {
+  cursor: not-allowed;
+}
+
+@keyframes carFadeIn {
+  from { opacity: 0; scale: 1.1; }
+  to { opacity: 1; scale: 1; }
+}
+
+
+/* --- 11. Barre d'action Flottante (Sticky Bottom) --- */
+
+/* On ajoute du padding au conteneur principal pour que la barre 
+   ne recouvre pas les places du bas quand on scroll au max */
+.parking-container {
+  padding-bottom: 150px; 
+}
+
+.action-bar {
+  position: fixed;
+  bottom: 30px; /* Distance du bord bas */
+  left: 50%;
+  transform: translateX(-50%); /* Centrage horizontal parfait */
+  
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  
+  background-color: #1e293b; /* Slate 800 */
+  padding: 15px 35px;
+  border-radius: 50px; /* Style "Pill" moderne */
+  border: 1px solid #3b82f6;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  z-index: 100; /* Passe au-dessus du parking */
+  
+  /* Animation d'entrée quand elle apparaît */
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.action-bar p {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 1.1rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.action-bar strong {
+  color: #3b82f6;
+  font-size: 1.2rem;
+  margin-left: 5px;
+}
+
+/* Style du bouton dans la barre */
+.btn-reserve {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reserve:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.btn-reserve:active {
+  transform: scale(0.98);
+}
+
+/* Animation de la barre qui monte du bas */
+@keyframes slideUp {
+  from { 
+    transform: translate(-50%, 100px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translate(-50%, 0); 
+    opacity: 1; 
+  }
+}
