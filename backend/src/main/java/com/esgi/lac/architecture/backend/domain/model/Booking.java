@@ -1,12 +1,11 @@
 package com.esgi.lac.architecture.backend.domain.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record Booking(
     String spotId,
     String firstName,
     String lastName,
-    int durationDays,
     UserRole role,
-    LocalDateTime createdAt
+    LocalDate bookingDate
 ) {}

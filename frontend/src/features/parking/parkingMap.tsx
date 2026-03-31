@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { bookingService } from '../../services/bookingService';
 import { ReservationModal } from './reservationModal';
-import type { ParkingSpot } from '../../types/api-model';
+import type { ParkingSpotResponse } from '../../types/api-model';
 import './parkingMap.css';
 
 import RedCar from '../../assets/cars/purple-car.png';
@@ -9,104 +9,120 @@ import BlueCar from '../../assets/cars/blue-car.png';
 
 const COLS = Array.from({ length: 10 }, (_, i) => i + 1);
 
+// Utilitaire pour obtenir la date du jour au format YYYY-MM-DD
+const getTodayString = () => new Date().toISOString().split('T')[0];
+
 export const ParkingMap = () => {
-  const [spots, setSpots] = useState<ParkingSpot[]>([]);
+  const [spots, setSpots] = useState<ParkingSpotResponse[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Fonction de synchronisation avec le Backend
+  // Fonction de synchronisation avec le Backend utilisant la date sélectionnée
   const refreshParkingStatus = async () => {
     try {
-      const data = await bookingService.getParkingStatus();
-      console.log("Données reçues du Backend :", data);
+      // On passe la date au service pour filtrer le parking
+      const data = await bookingService.getParkingStatus(selectedDate);
+      console.log(`Données reçues pour le ${selectedDate} :`, data);
       setSpots(data);
     } catch (error) {
       console.error("Erreur chargement parking:", error);
     }
   };
 
+  // On recharge les places dès que la date change
   useEffect(() => {
     refreshParkingStatus();
-  }, []);
-
-const handleConfirm = async (firstName: string, lastName: string, duration: number, role: string) => {
-  if (!selectedId) return;
-
-  try {
-    // On envoie l'objet JSON qui correspond au record 'Booking' du Java
-    await bookingService.createReservation({
-      spotId: selectedId,
-      firstName,
-      lastName,
-      durationDays: duration,
-      role: role // <--- Nouveau champ indispensable !
-    });
-
-    setShowModal(false);
+    // On réinitialise la sélection si on change de date pour éviter les erreurs
     setSelectedId(null);
-    await refreshParkingStatus();
-  } catch (error) {
-    alert("Erreur : Vérifiez la durée autorisée pour votre rôle.");
-  }
-};
+  }, [selectedDate]);
+
+  const handleConfirm = async (firstName: string, lastName: string, role: string) => {
+    if (!selectedId) return;
+
+    try {
+      // On envoie les données correspondant au BookingRequestDTO du Backend
+      await bookingService.createReservation({
+        spotId: selectedId,
+        firstName,
+        lastName,
+        role: role as 'EMPLOYEE' | 'MANAGER',
+        bookingDate: selectedDate // La date choisie sur le calendrier
+      });
+
+      setShowModal(false);
+      setSelectedId(null);
+      await refreshParkingStatus();
+    } catch (error) {
+      // On affiche le message d'erreur renvoyé par le GlobalExceptionHandler du Back
+      alert(error instanceof Error ? error.message : "Erreur lors de la réservation");
+    }
+  };
 
   const renderRow = (letter: string) => (
     <div className={`row-container row-${letter}`} key={letter}>
       <div className="row-label">{letter}</div>
       <div className="spots-grid">
         {COLS.map((num) => {
-  const id = `${letter}${num.toString().padStart(2, '0')}`;
-  
+          const id = `${letter}${num.toString().padStart(2, '0')}`;
+          const spotData = spots.find(s => s.id === id);
+          const isOccupied = !!spotData;
+          const isMine = selectedId === id;
 
-  const spotData = spots.find(s => s.id === id);
-  const isOccupied = !!spotData;
-  const isMine = selectedId === id;
+          return (
+            <div 
+              key={id} 
+              className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''}`}
+              onClick={() => {
+                if (!isOccupied) {
+                  setSelectedId(id);
+                } else {
+                  console.log(`Place ${id} occupée par : ${spotData?.reservedBy}`);
+                }
+              }}
+            >
+              <span className="spot-id">{id}</span>
+              
+              {(letter === 'A' || letter === 'F') && !isOccupied && !isMine && (
+                <span className="electric-bolt">⚡</span>
+              )}
+              
+              {isOccupied && (
+                <div className="car-container">
+                  <img src={RedCar} alt="Occupé" className="car-image" />
+                  <div className="driver-name">
+                    {spotData?.reservedBy}
+                  </div>
+                </div>
+              )}
 
-  return (
-    <div 
-      key={id} 
-      className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''}`}
-      onClick={() => {
-        if (!isOccupied) {
-          console.log(`Sélection de la place libre : ${id}`);
-          setSelectedId(id);
-        } else {
-          console.log(`Place ${id} occupée par : ${spotData?.reservedBy}`);
-        }
-      }}
-    >
-      <span className="spot-id">{id}</span>
-      
-      {/* Électrique pour A et F si libre */}
-      {(letter === 'A' || letter === 'F') && !isOccupied && !isMine && (
-        <span className="electric-bolt">⚡</span>
-      )}
-      
-      {/* Affichage des voitures occupées avec le nom du conducteur */}
-      {isOccupied && (
-        <div className="car-container">
-          <img src={RedCar} alt="Occupé" className="car-image" />
-          <div className="driver-name">
-            {spotData?.reservedBy}
-          </div>
-        </div>
-      )}
-
-      {/* Affichage de la voiture bleue pour la sélection en cours */}
-      {isMine && (
-        <div className="car-container">
-          <img src={BlueCar} alt="Sélectionné" className="car-image" />
-        </div>
-      )}
-    </div>
-  );
-})}
+              {isMine && (
+                <div className="car-container">
+                  <img src={BlueCar} alt="Sélectionné" className="car-image" />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 
   return (
     <div className="parking-layout">
+      {/* Sélecteur de date pour naviguer dans le planning */}
+      <div className="date-navigation">
+        <label htmlFor="parking-date">Consulter le parking pour le : </label>
+        <input 
+          type="date" 
+          id="parking-date"
+          value={selectedDate}
+          min={getTodayString()} // On empêche de réserver dans le passé
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="date-input"
+        />
+      </div>
+
       <div className="parking-container">
         {renderRow('A')}
         <div className="driveway">➡</div>
@@ -123,12 +139,11 @@ const handleConfirm = async (firstName: string, lastName: string, duration: numb
         {renderRow('F')}
       </div>
 
-      {/* Barre d'action : ne s'affiche que si selectedId n'est pas null */}
       {selectedId && (
         <div className="action-bar" style={{ display: 'flex', zIndex: 1000 }}>
-          <p>Place sélectionnée : <strong>{selectedId}</strong></p>
+          <p>Place <strong>{selectedId}</strong> sélectionnée pour le <strong>{selectedDate}</strong></p>
           <button className="btn-reserve" onClick={() => setShowModal(true)}>
-            Réserver maintenant
+            Confirmer la réservation
           </button>
         </div>
       )}
@@ -136,6 +151,7 @@ const handleConfirm = async (firstName: string, lastName: string, duration: numb
       {showModal && selectedId && (
         <ReservationModal 
           spotId={selectedId} 
+          bookingDate={selectedDate} // On passe la date à la modale pour info
           onClose={() => setShowModal(false)} 
           onConfirm={handleConfirm}
         />

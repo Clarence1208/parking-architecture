@@ -1,13 +1,16 @@
+//BookingRequestDTO
 export interface ParkingReservationRequest {
   spotId: string;
   firstName: string;
   lastName: string;
-  durationDays: number;
-  role: string;
+  role: 'EMPLOYEE' | 'MANAGER'; 
+  bookingDate: string;
 }
 
-export interface ParkingSpot {
-  id: string;
+//BookingResponseDTO
+export interface ParkingSpotResponse {
+  id: string; 
   isOccupied: boolean;
-  reservedBy?: string; // Nom complet pour l'affichage
+  reservedBy?: string;
+  date?: string;
 }

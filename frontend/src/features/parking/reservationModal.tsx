@@ -3,30 +3,26 @@ import './ReservationModal.css';
 
 interface Props {
   spotId: string;
+  bookingDate: string; 
   onClose: () => void;
-  onConfirm: (firstName: string, lastName: string, duration: number, role: string) => void;
+  onConfirm: (firstName: string, lastName: string, role: string) => void; 
 }
 
-export const ReservationModal = ({ spotId, onClose, onConfirm }: Props) => {
+export const ReservationModal = ({ spotId, bookingDate, onClose, onConfirm }: Props) => {
   const [form, setForm] = useState({ 
     firstName: '', 
     lastName: '', 
-    duration: 1, 
-    role: 'EMPLOYEE' // Rôle par défaut
+    role: 'EMPLOYEE' 
   });
 
-  // Détermination de la limite selon le rôle sélectionné
-  const maxDays = form.role === 'MANAGER' ? 30 : 5;
-  
-  // Validation du formulaire
-  const isDurationValid = form.duration > 0 && form.duration <= maxDays;
+  // La validation est simplifiée : juste vérifier que les noms sont remplis
   const isFormComplete = form.firstName.trim() !== '' && form.lastName.trim() !== '';
-  const canSubmit = isDurationValid && isFormComplete;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (canSubmit) {
-      onConfirm(form.firstName, form.lastName, form.duration, form.role);
+    if (isFormComplete) {
+      // On n'envoie plus duration ici
+      onConfirm(form.firstName, form.lastName, form.role);
     }
   };
 
@@ -35,6 +31,11 @@ export const ReservationModal = ({ spotId, onClose, onConfirm }: Props) => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h3>Réserver la place {spotId}</h3>
         
+        {/* On affiche la date pour laquelle on réserve */}
+        <p className="modal-date-info">
+          Réservation pour le : <strong>{bookingDate}</strong>
+        </p>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Prénom</label>
@@ -62,27 +63,15 @@ export const ReservationModal = ({ spotId, onClose, onConfirm }: Props) => {
             <label>Votre profil</label>
             <select 
               value={form.role} 
-              onChange={e => setForm({...form, role: e.target.value, duration: 1})} // On reset la durée si on change de rôle
+              onChange={e => setForm({...form, role: e.target.value})}
             >
-              <option value="EMPLOYEE">Employé (max 5j)</option>
-              <option value="SECRETARY">Secrétaire (max 5j)</option>
-              <option value="MANAGER">Manager (max 30j)</option>
+              <option value="EMPLOYEE">Employé</option>
+              <option value="SECRETARY">Secrétaire</option>
+              <option value="MANAGER">Manager</option>
             </select>
-          </div>
-
-          <div className="form-group">
-            <label>Durée de la réservation (jours)</label>
-            <input 
-              type="number" 
-              min="1" 
-              max={maxDays}
-              value={form.duration} 
-              className={!isDurationValid ? 'input-error' : ''}
-              onChange={e => setForm({...form, duration: parseInt(e.target.value) || 0})} 
-            />
-            {!isDurationValid && (
-              <span className="error-text">Limite pour ce profil : {maxDays} jours.</span>
-            )}
+            <small className="role-hint">
+              {form.role === 'MANAGER' ? 'Quota : 30 jours max' : 'Quota : 5 jours max'}
+            </small>
           </div>
 
           <div className="modal-buttons">
@@ -90,7 +79,7 @@ export const ReservationModal = ({ spotId, onClose, onConfirm }: Props) => {
             <button 
               type="submit" 
               className="confirm-btn" 
-              disabled={!canSubmit}
+              disabled={!isFormComplete}
             >
               Confirmer la place
             </button>
