@@ -7,5 +7,6 @@ public record Booking(
     String firstName,
     String lastName,
     int durationDays,
+    UserRole role,
     LocalDateTime createdAt
 ) {}

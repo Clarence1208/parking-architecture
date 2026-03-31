@@ -3,6 +3,7 @@ package com.esgi.lac.architecture.backend.application;
 import com.esgi.lac.architecture.backend.domain.usecase.BookingUseCase;
 import com.esgi.lac.architecture.backend.infrastructure.persistence.JpaBookingRepository;
 import com.esgi.lac.architecture.backend.infrastructure.persistence.entity.BookingEntity;
+import com.esgi.lac.architecture.backend.domain.model.Booking;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +24,24 @@ public class BookingService implements BookingUseCase {
 
     @Override
     @Transactional
-    public void reserveSpot(String spotId, String firstName, String lastName, int durationDays) {
-        if (repository.existsById(spotId)) {
-            throw new IllegalStateException("Place déjà réservée !");
+    public void reserveSpot(Booking booking) { // <-- Vérifie que "request" est bien défini ici
+        
+        // 1. Validation de la durée via l'Enum
+        if (booking.durationDays() > booking.role().getMaxDays()) {
+            throw new IllegalArgumentException(
+                "Le rôle " + booking.role() + " ne peut pas réserver plus de " + 
+                booking.role().getMaxDays() + " jours."
+            );
         }
 
-        BookingEntity entity = new BookingEntity(
-            spotId, firstName, lastName, durationDays, LocalDateTime.now()
-        );
-        
+        // 2. Création de l'entité pour la base de données
+        BookingEntity entity = new BookingEntity();
+        entity.setSpotId(booking.spotId());
+        entity.setFirstName(booking.firstName());
+        entity.setLastName(booking.lastName());
+        entity.setDurationDays(booking.durationDays());
+        // On pourrait aussi stocker le rôle si besoin : entity.setRole(request.role().name());
+
         repository.save(entity);
     }
 

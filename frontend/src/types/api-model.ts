@@ -3,6 +3,7 @@ export interface ParkingReservationRequest {
   firstName: string;
   lastName: string;
   durationDays: number;
+  role: string;
 }
 
 export interface ParkingSpot {

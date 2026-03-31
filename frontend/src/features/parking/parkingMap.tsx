@@ -29,28 +29,26 @@ export const ParkingMap = () => {
     refreshParkingStatus();
   }, []);
 
-  const handleConfirm = async (firstName: string, lastName: string, duration: number) => {
-    if (!selectedId) return;
+const handleConfirm = async (firstName: string, lastName: string, duration: number, role: string) => {
+  if (!selectedId) return;
 
-    try {
-      await bookingService.createReservation({
-        spotId: selectedId,
-        firstName,
-        lastName,
-        durationDays: duration
-      });
+  try {
+    // On envoie l'objet JSON qui correspond au record 'Booking' du Java
+    await bookingService.createReservation({
+      spotId: selectedId,
+      firstName,
+      lastName,
+      durationDays: duration,
+      role: role // <--- Nouveau champ indispensable !
+    });
 
-      setShowModal(false);
-      setSelectedId(null);
-      
-      // Rafraîchissement après succès
-      await refreshParkingStatus();
-      alert(`Réservation confirmée pour la place ${selectedId}`);
-    } catch (error) {
-      alert("Erreur lors de la réservation. La place est peut-être déjà prise.");
-      await refreshParkingStatus();
-    }
-  };
+    setShowModal(false);
+    setSelectedId(null);
+    await refreshParkingStatus();
+  } catch (error) {
+    alert("Erreur : Vérifiez la durée autorisée pour votre rôle.");
+  }
+};
 
   const renderRow = (letter: string) => (
     <div className={`row-container row-${letter}`} key={letter}>
