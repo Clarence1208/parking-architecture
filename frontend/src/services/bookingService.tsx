@@ -1,18 +1,16 @@
-import type { ParkingReservationRequest, ParkingSpot } from '../types/api-model';
+// src/services/bookingService.ts
+import { apiClient } from '../shared/api/apiClient';
+import type { ParkingReservationRequest } from '../types/api-model';
 
 export const bookingService = {
-  // Récupérer l'état initial du parking
-  async getParkingStatus(): Promise<ParkingSpot[]> {
-    // Simulation d'appel API GET /api/booking/spots
-    return [
-      { id: 'A05', isOccupied: true, reservedBy: 'Jean Dupont' },
-      { id: 'B02', isOccupied: true, reservedBy: 'Alice Martin' },
-    ];
+  /**
+   * Envoie la réservation via le client partagé
+   */
+  async createReservation(data: ParkingReservationRequest): Promise<void> {
+    return apiClient.post('/booking/reserve', data);
   },
 
-  // Envoyer la réservation au backend
-  async createReservation(data: ParkingReservationRequest): Promise<void> {
-    console.log("Appel API POST /api/booking/reserve avec :", data);
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+  async getParkingStatus(): Promise<any[]> {
+    return apiClient.get('/booking/spots'); 
   }
 };

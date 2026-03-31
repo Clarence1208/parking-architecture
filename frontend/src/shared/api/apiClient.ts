@@ -20,5 +20,25 @@ export const apiClient = {
     }
     return response.text() as unknown as T;
   },
+post: async <T>(endpoint: string, data: any): Promise<T> => {
+    const url = `${BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Gestion propre de la réponse (JSON ou vide)
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return response.json();
+    }
+    return {} as T; 
+  },
 };
