@@ -12,56 +12,115 @@ const COLS = Array.from({ length: 10 }, (_, i) => i + 1);
 // Utilitaire pour obtenir la date du jour au format YYYY-MM-DD
 const getTodayString = () => new Date().toISOString().split('T')[0];
 
-const getWaypoints = (spotId: string) => {
+const roadLine = [
+  { x: 50, y: -50 },     // 0
+  { x: 50, y: 180 },     // 1
+  { x: 1065, y: 180 },   // 2
+  { x: 1065, y: 540 },   // 3
+  { x: 50, y: 540 },     // 4
+  { x: 50, y: 900 },     // 5
+  { x: 1065, y: 900 },   // 6
+  { x: 1065, y: 1150 }   // 7
+];
+
+interface Point { x: number; y: number; }
+
+const getSpotConnection = (spotId: string) => {
   const row = spotId.charAt(0);
   const num = parseInt(spotId.slice(1), 10);
-  
   const targetX = 165 + (num - 1) * 85 + 42.5; 
-  let waypoints = [];
-  
-  waypoints.push({ x: 50, y: -50, rotate: 180 }); // start
+  let targetY = 0;
+  let connY = 0;
+  let segment = 0; 
 
-  if (row === 'A' || row === 'B') {
-     waypoints.push({ x: 50, y: 180, rotate: 180 }); 
-     waypoints.push({ x: 50, y: 180, rotate: 90 }); 
-     waypoints.push({ x: targetX, y: 180, rotate: 90 }); 
-  } else if (row === 'C' || row === 'D') {
-     waypoints.push({ x: 50, y: 180, rotate: 180 });
-     waypoints.push({ x: 50, y: 180, rotate: 90 });
-     waypoints.push({ x: 1065, y: 180, rotate: 90 }); 
-     waypoints.push({ x: 1065, y: 180, rotate: 180 }); 
-     waypoints.push({ x: 1065, y: 540, rotate: 180 });
-     waypoints.push({ x: 1065, y: 540, rotate: 270 }); 
-     waypoints.push({ x: targetX, y: 540, rotate: 270 });
-  } else if (row === 'E' || row === 'F') {
-     waypoints.push({ x: 50, y: 180, rotate: 180 });
-     waypoints.push({ x: 50, y: 180, rotate: 90 });
-     waypoints.push({ x: 1065, y: 180, rotate: 90 });
-     waypoints.push({ x: 1065, y: 180, rotate: 180 });
-     waypoints.push({ x: 1065, y: 540, rotate: 180 });
-     waypoints.push({ x: 1065, y: 540, rotate: 270 });
-     waypoints.push({ x: 50, y: 540, rotate: 270 });
-     waypoints.push({ x: 50, y: 540, rotate: 180 }); 
-     waypoints.push({ x: 50, y: 900, rotate: 180 });
-     waypoints.push({ x: 50, y: 900, rotate: 90 }); 
-     waypoints.push({ x: targetX, y: 900, rotate: 90 });
-  }
+  if (row === 'A') { targetY = 65; connY = 180; segment = 1; }
+  else if (row === 'B') { targetY = 295; connY = 180; segment = 1; }
+  else if (row === 'C') { targetY = 425; connY = 540; segment = 3; }
+  else if (row === 'D') { targetY = 655; connY = 540; segment = 3; }
+  else if (row === 'E') { targetY = 785; connY = 900; segment = 5; }
+  else if (row === 'F') { targetY = 1015; connY = 900; segment = 5; }
 
-  if (row === 'A' || row === 'C' || row === 'E') {
-     const lastWP = waypoints[waypoints.length - 1];
-     waypoints.push({ ...lastWP, rotate: 180 }); // turn up
-     let targetY = row === 'A' ? 65 : (row === 'C' ? 425 : 785);
-     waypoints.push({ x: targetX, y: targetY, rotate: 180 });
+  return {
+    spotCenter: { x: targetX, y: targetY },
+    connection: { x: targetX, y: connY },
+    roadIndexSegment: segment,
+    row: row
+  };
+};
+
+const getWaypoints = (startId: string | null, targetId: string) => {
+  const end = getSpotConnection(targetId);
+  const rawPoints: Point[] = [];
+
+  if (!startId) {
+     rawPoints.push(roadLine[0]);
+     for (let i = 1; i <= end.roadIndexSegment; i++) {
+        rawPoints.push(roadLine[i]);
+     }
+     rawPoints.push(end.connection);
+     rawPoints.push(end.spotCenter);
   } else {
-     const lastWP = waypoints[waypoints.length - 1];
-     let endRot = 0;
-     if (row === 'D') endRot = 360; // 270 -> 360 is shortest
-     else endRot = 0; // B: 90 -> 0. F: 90 -> 0.
-     waypoints.push({ ...lastWP, rotate: endRot }); // turn down
-     let targetY = row === 'B' ? 295 : (row === 'D' ? 655 : 1015);
-     waypoints.push({ x: targetX, y: targetY, rotate: endRot });
+     const start = getSpotConnection(startId);
+     rawPoints.push(start.spotCenter);
+     rawPoints.push(start.connection);
+     
+     if (start.roadIndexSegment === end.roadIndexSegment) {
+        rawPoints.push(end.connection);
+     } else if (start.roadIndexSegment < end.roadIndexSegment) {
+        for (let i = start.roadIndexSegment + 1; i <= end.roadIndexSegment; i++) {
+           rawPoints.push(roadLine[i]);
+        }
+        rawPoints.push(end.connection);
+     } else {
+        for (let i = start.roadIndexSegment; i > end.roadIndexSegment; i--) {
+           rawPoints.push(roadLine[i]);
+        }
+        rawPoints.push(end.connection);
+     }
+     rawPoints.push(end.spotCenter);
   }
-  
+
+  // Remove consecutive duplicates
+  const points: Point[] = [];
+  for (const p of rawPoints) {
+     if (points.length > 0) {
+        const prev = points[points.length - 1];
+        if (prev.x === p.x && prev.y === p.y) continue;
+     }
+     points.push(p);
+  }
+
+  const waypoints: { x: number, y: number, rotate: number }[] = [];
+  for (let i = 0; i < points.length; i++) {
+     const curr = points[i];
+     if (i === 0) {
+        const next = points[i+1];
+        let angle = Math.round(Math.atan2(next.y - curr.y, next.x - curr.x) * (180 / Math.PI) + 90);
+        waypoints.push({ x: curr.x, y: curr.y, rotate: (angle + 360) % 360 });
+     } else {
+        const prevWP = waypoints[waypoints.length - 1];
+        waypoints.push({ x: curr.x, y: curr.y, rotate: prevWP.rotate });
+        
+        if (i < points.length - 1) {
+           const next = points[i+1];
+           let normAngle;
+           
+           if (i === points.length - 2) {
+              normAngle = (end.row === 'A' || end.row === 'C' || end.row === 'E') ? 180 : 0;
+           } else {
+              let angle = Math.round(Math.atan2(next.y - curr.y, next.x - curr.x) * (180 / Math.PI) + 90);
+              normAngle = (angle + 360) % 360;
+           }
+           
+           let diff = normAngle - ((prevWP.rotate % 360 + 360) % 360);
+           if (diff > 180) diff -= 360;
+           if (diff < -180) diff += 360;
+           
+           waypoints.push({ x: curr.x, y: curr.y, rotate: prevWP.rotate + diff });
+        }
+     }
+  }
+
   return waypoints;
 };
 
@@ -74,16 +133,17 @@ const generateKeyframes = (waypoints: {x: number, y: number, rotate: number}[]) 
   }
 
   let currentDist = 0;
-  return waypoints.map((wp, i) => {
+  const rules = waypoints.map((wp, i) => {
     if (i > 0) {
       let d = Math.max(Math.abs(wp.x - waypoints[i - 1].x), Math.abs(wp.y - waypoints[i - 1].y));
       if (d === 0) d = 80;
       currentDist += d;
     }
     const percent = ((currentDist / totalDist) * 100).toFixed(2);
-    // translate goes to the exact center, so we offset by 50% of the car's own width/height
     return `${percent}% { transform: translate(${wp.x}px, ${wp.y}px) translate(-50%, -50%) rotate(${wp.rotate}deg); }`;
   }).join('\n');
+  
+  return { rules, totalDist };
 };
 
 export const ParkingMap = () => {
@@ -103,25 +163,30 @@ export const ParkingMap = () => {
     if (selectedId === id) return; // Already selected
 
     // Start Animation Sequence
+    const previousId = selectedId;
     setAnimatingSpotId(id);
     setSelectedId(null);
     
-    const waypoints = getWaypoints(id);
-    const keyframesRules = generateKeyframes(waypoints);
+    const waypoints = getWaypoints(previousId, id);
+    const { rules, totalDist } = generateKeyframes(waypoints);
+    
+    // Dynamically adjust duration based on distance traveled so it doesn't zoom
+    const durationMs = Math.max(1500, Math.min((totalDist / 400) * 1000, 3500));
+    const durationSec = (durationMs / 1000).toFixed(2);
+
     setAnimationStyle(`
       @keyframes driveCarToSpot {
-        ${keyframesRules}
+        ${rules}
       }
       .animated-car-drive {
-        animation: driveCarToSpot 2.5s linear forwards;
+        animation: driveCarToSpot ${durationSec}s linear forwards;
       }
     `);
 
-    // Timer completes after 2.5 seconds matching the animation time
     setTimeout(() => {
       setAnimatingSpotId(null);
       setSelectedId(id);
-    }, 2500);
+    }, Math.floor(durationMs));
   };
 
   // Fonction de synchronisation avec le Backend utilisant la date sélectionnée
