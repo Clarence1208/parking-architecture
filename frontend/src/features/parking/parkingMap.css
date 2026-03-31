@@ -326,4 +326,5 @@
   width: 85%;
   height: auto;
   filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
+  background-color: transparent;
 }
