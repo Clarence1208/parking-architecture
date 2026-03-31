@@ -33,4 +33,11 @@ public class HelloController {
     public ResponseEntity<String> helloDb() {
         return ResponseEntity.ok(helloUseCase.greetFromDb());
     }
+
+    @Operation(summary = "Say hello from redis queue", description = "Pushes then pops a message from Redis queue")
+    @ApiResponse(responseCode = "200", description = "Redis queue message returned successfully")
+    @GetMapping("/hello/redis")
+    public ResponseEntity<String> helloRedis() {
+        return ResponseEntity.ok(helloUseCase.greetFromRedis());
+    }
 }
