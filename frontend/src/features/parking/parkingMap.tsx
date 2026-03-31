@@ -125,11 +125,13 @@ export const ParkingMap = () => {
 
       <div className="parking-container">
         <div className="parking-board">
+          <div className="sign-board sign-entrance">ENTRÉE</div>
+          <div className="sign-board sign-exit">SORTIE</div>
           {/* Continuous SVG Road Overlay */}
           <svg className="road-svg" viewBox="0 0 1115 1080" preserveAspectRatio="xMidYMid meet">
             {/* Main Road Surface */}
             <path 
-              d="M 50,-60 L 50,140 Q 50,180 90,180 L 1025,180 Q 1065,180 1065,220 L 1065,500 Q 1065,540 1025,540 L 90,540 Q 50,540 50,580 L 50,860 Q 50,900 90,900 L 1200,900"
+              d="M 50,-60 L 50,140 Q 50,180 90,180 L 1025,180 Q 1065,180 1065,220 L 1065,500 Q 1065,540 1025,540 L 90,540 Q 50,540 50,580 L 50,860 Q 50,900 90,900 L 1025,900 Q 1065,900 1065,940 L 1065,1150"
               fill="none"
               stroke="#1e293b"
               strokeWidth="90"
@@ -137,7 +139,7 @@ export const ParkingMap = () => {
             />
             {/* Dashed Center Line */}
             <path 
-              d="M 50,-60 L 50,140 Q 50,180 90,180 L 1025,180 Q 1065,180 1065,220 L 1065,500 Q 1065,540 1025,540 L 90,540 Q 50,540 50,580 L 50,860 Q 50,900 90,900 L 1200,900"
+              d="M 50,-60 L 50,140 Q 50,180 90,180 L 1025,180 Q 1065,180 1065,220 L 1065,500 Q 1065,540 1025,540 L 90,540 Q 50,540 50,580 L 50,860 Q 50,900 90,900 L 1025,900 Q 1065,900 1065,940 L 1065,1150"
               fill="none"
               stroke="#facc15"
               strokeWidth="4"
