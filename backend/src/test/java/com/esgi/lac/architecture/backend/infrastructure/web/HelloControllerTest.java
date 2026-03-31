@@ -1,6 +1,6 @@
 package com.esgi.lac.architecture.backend.infrastructure.web;
 
-import com.esgi.lac.architecture.backend.domain.usecase.HelloUseCase;
+import com.esgi.lac.architecture.backend.application.usecase.HelloUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

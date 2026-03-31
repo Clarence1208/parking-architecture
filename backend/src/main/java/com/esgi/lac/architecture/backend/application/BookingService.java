@@ -1,24 +1,21 @@
 package com.esgi.lac.architecture.backend.application;
 
-import com.esgi.lac.architecture.backend.domain.usecase.BookingUseCase;
-import com.esgi.lac.architecture.backend.infrastructure.persistence.JpaBookingRepository;
-import com.esgi.lac.architecture.backend.infrastructure.persistence.entity.BookingEntity;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
+import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
+import com.esgi.lac.architecture.backend.application.repository.BookingRepository;
+import com.esgi.lac.architecture.backend.application.usecase.BookingUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.HashMap;
 
 @Service
 public class BookingService implements BookingUseCase {
 
-    private final JpaBookingRepository repository;
+    private final BookingRepository repository;
 
-    public BookingService(JpaBookingRepository repository) {
+    public BookingService(BookingRepository repository) {
         this.repository = repository;
     }
 
@@ -31,46 +28,41 @@ public class BookingService implements BookingUseCase {
         }
 
         // Vérifier si la place est déjà prise CE JOUR-LÀ
-        if (repository.findBySpotIdAndBookingDate(booking.spotId(), booking.bookingDate()).isPresent()) {
+        if (repository.existsBySpotIdAndDate(booking.spotId(), booking.bookingDate())) {
             throw new IllegalStateException("Cette place est déjà réservée pour cette date.");
         }
 
         // Vérifier le quota (5 ou 30 jours selon le rôle)
-        long currentBookings = repository.countByFirstNameAndLastName(booking.firstName(), booking.lastName());
-        if (currentBookings >= booking.role().getMaxDays()) {
-            throw new IllegalArgumentException("Quota de " + booking.role().getMaxDays() + " jours atteint !");
+        long currentBookings = repository.countUpcomingByUser(
+            booking.firstName(),
+            booking.lastName(),
+            LocalDate.now()
+        );
+        if (currentBookings >= booking.role().getMaxNumberOfBookingDays()) {
+            throw new IllegalArgumentException("Quota de " + booking.role().getMaxNumberOfBookingDays() + " jours atteint !");
         }
 
         // Sauvegarde
-        BookingEntity entity = new BookingEntity();
-        entity.setSpotId(booking.spotId());
-        entity.setFirstName(booking.firstName());
-        entity.setLastName(booking.lastName());
-        entity.setBookingDate(booking.bookingDate());
-
-        repository.save(entity);
+        repository.save(booking);
     }
 
     @Override
-    public List<Map<String, Object>> getSpotsByDate(LocalDate date) {
+    public List<BookingSpotStatus> getSpotsByDate(LocalDate date) {
         // On récupère uniquement les réservations du jour 'date'
-        List<BookingEntity> dayBookings = repository.findAllByBookingDate(date);
+        List<Booking> dayBookings = repository.findAllByDate(date);
 
-        // On transforme les entités en Map pour le Front
         return dayBookings.stream()
-                .map(b -> {
-                    Map<String, Object> spot = new HashMap<>();
-                    spot.put("id", b.getSpotId());
-                    spot.put("isOccupied", true);
-                    spot.put("reservedBy", b.getFirstName() + " " + b.getLastName());
-                    spot.put("date", b.getBookingDate());
-                    return spot;
-                })
-                .collect(Collectors.toList());
+            .map(b -> new BookingSpotStatus(
+                b.spotId(),
+                true,
+                b.firstName() + " " + b.lastName(),
+                b.bookingDate()
+            ))
+            .toList();
     }
 
     @Override
-    public List<Map<String, Object>> getAllSpots() {
+    public List<BookingSpotStatus> getAllSpots() {
         return getSpotsByDate(LocalDate.now());
     }
 }

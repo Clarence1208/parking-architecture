@@ -2,7 +2,7 @@ package com.esgi.lac.architecture.backend.infrastructure.web;
 
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
-import com.esgi.lac.architecture.backend.domain.usecase.BookingUseCase;
+import com.esgi.lac.architecture.backend.application.usecase.BookingUseCase;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingRequestDTO;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.List;
 
 @Tag(name = "Booking", description = "Parking booking operations")
@@ -43,11 +42,11 @@ public class BookingController {
 
         List<BookingResponseDTO> response = bookingUseCase.getSpotsByDate(targetDate)
                 .stream()
-                .map(map -> new BookingResponseDTO(
-                        (String) map.get("id"),
-                        (boolean) map.get("isOccupied"),
-                        (String) map.get("reservedBy"),
-                        (LocalDate) map.get("date")
+                .map(spot -> new BookingResponseDTO(
+                        spot.spotId(),
+                        spot.occupied(),
+                        spot.reservedBy(),
+                        spot.date()
                 ))
                 .toList();
 

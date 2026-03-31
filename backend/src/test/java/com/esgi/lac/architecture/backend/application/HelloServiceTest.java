@@ -1,16 +1,14 @@
 package com.esgi.lac.architecture.backend.application;
 
+import com.esgi.lac.architecture.backend.application.repository.GreetingQueuePort;
+import com.esgi.lac.architecture.backend.application.repository.GreetingReadPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,13 +16,10 @@ import static org.mockito.Mockito.when;
 class HelloServiceTest {
 
     @Mock
-    private JdbcTemplate jdbcTemplate;
+    private GreetingReadPort greetingReadPort;
 
     @Mock
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Mock
-    private ListOperations<String, String> listOperations;
+    private GreetingQueuePort greetingQueuePort;
 
     @InjectMocks
     private HelloService helloService;
@@ -36,31 +31,27 @@ class HelloServiceTest {
 
     @Test
     void greetFromDbReturnsMessageFromSqlQuery() {
-        when(jdbcTemplate.queryForObject("SELECT 'Hello from PostgreSQL!'", String.class))
-            .thenReturn("Hello from PostgreSQL!");
+        when(greetingReadPort.readGreeting()).thenReturn("Hello from PostgreSQL!");
 
         String result = helloService.greetFromDb();
 
         assertEquals("Hello from PostgreSQL!", result);
-        verify(jdbcTemplate).queryForObject("SELECT 'Hello from PostgreSQL!'", String.class);
+        verify(greetingReadPort).readGreeting();
     }
 
     @Test
     void greetFromRedisPushesAndPopsQueueMessage() {
-        when(stringRedisTemplate.opsForList()).thenReturn(listOperations);
-        when(listOperations.rightPop(eq("hello-queue"))).thenReturn("Hello from Redis queue!");
+        when(greetingQueuePort.enqueueAndReadGreeting()).thenReturn("Hello from Redis queue!");
 
         String result = helloService.greetFromRedis();
 
         assertEquals("Hello from Redis queue!", result);
-        verify(listOperations).leftPush("hello-queue", "Hello from Redis queue!");
-        verify(listOperations).rightPop("hello-queue");
+        verify(greetingQueuePort).enqueueAndReadGreeting();
     }
 
     @Test
     void greetFromRedisReturnsFallbackWhenQueueIsEmpty() {
-        when(stringRedisTemplate.opsForList()).thenReturn(listOperations);
-        when(listOperations.rightPop(eq("hello-queue"))).thenReturn(null);
+        when(greetingQueuePort.enqueueAndReadGreeting()).thenReturn("Redis queue is empty.");
 
         String result = helloService.greetFromRedis();
 

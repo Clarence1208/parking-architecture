@@ -1,4 +1,4 @@
-package com.esgi.lac.architecture.backend.domain.usecase;
+package com.esgi.lac.architecture.backend.application.usecase;
 
 public interface HelloUseCase {
     String greet();

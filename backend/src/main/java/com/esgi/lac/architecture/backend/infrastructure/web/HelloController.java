@@ -1,6 +1,6 @@
 package com.esgi.lac.architecture.backend.infrastructure.web;
 
-import com.esgi.lac.architecture.backend.domain.usecase.HelloUseCase;
+import com.esgi.lac.architecture.backend.application.usecase.HelloUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,0 +1,13 @@
+package com.esgi.lac.architecture.backend.application.repository;
+
+import com.esgi.lac.architecture.backend.domain.model.Booking;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface BookingRepository {
+    boolean existsBySpotIdAndDate(String spotId, LocalDate bookingDate);
+    long countUpcomingByUser(String firstName, String lastName, LocalDate fromDate);
+    void save(Booking booking);
+    List<Booking> findAllByDate(LocalDate date);
+}

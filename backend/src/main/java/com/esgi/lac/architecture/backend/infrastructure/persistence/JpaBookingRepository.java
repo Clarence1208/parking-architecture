@@ -15,6 +15,6 @@ public interface JpaBookingRepository extends JpaRepository<BookingEntity, Long>
     // Vérifier si une place précise est prise à une date précise
     Optional<BookingEntity> findBySpotIdAndBookingDate(String spotId, LocalDate date);
 
-    // Compter les réservations d'un utilisateur (pour le quota)
-    long countByFirstNameAndLastName(String firstName, String lastName);
+    // Compter les réservations à venir d'un utilisateur (pour le quota)
+    long countByFirstNameAndLastNameAndBookingDateGreaterThanEqual(String firstName, String lastName, LocalDate fromDate);
 }

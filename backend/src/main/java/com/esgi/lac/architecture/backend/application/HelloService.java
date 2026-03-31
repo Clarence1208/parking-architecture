@@ -1,18 +1,18 @@
 package com.esgi.lac.architecture.backend.application;
 
-import com.esgi.lac.architecture.backend.domain.usecase.HelloUseCase;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.esgi.lac.architecture.backend.application.repository.GreetingQueuePort;
+import com.esgi.lac.architecture.backend.application.repository.GreetingReadPort;
+import com.esgi.lac.architecture.backend.application.usecase.HelloUseCase;
 import org.springframework.stereotype.Service;
 
 @Service
 public class HelloService implements HelloUseCase {
-    private final JdbcTemplate jdbcTemplate;
-    private final StringRedisTemplate stringRedisTemplate;
+    private final GreetingReadPort greetingReadPort;
+    private final GreetingQueuePort greetingQueuePort;
 
-    public HelloService(JdbcTemplate jdbcTemplate, StringRedisTemplate stringRedisTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.stringRedisTemplate = stringRedisTemplate;
+    public HelloService(GreetingReadPort greetingReadPort, GreetingQueuePort greetingQueuePort) {
+        this.greetingReadPort = greetingReadPort;
+        this.greetingQueuePort = greetingQueuePort;
     }
 
     @Override
@@ -22,15 +22,11 @@ public class HelloService implements HelloUseCase {
 
     @Override
     public String greetFromDb() {
-        return jdbcTemplate.queryForObject("SELECT 'Hello from PostgreSQL!'", String.class);
+        return greetingReadPort.readGreeting();
     }
 
     @Override
     public String greetFromRedis() {
-        String queueName = "hello-queue";
-        String message = "Hello from Redis queue!";
-        stringRedisTemplate.opsForList().leftPush(queueName, message);
-        String queuedMessage = stringRedisTemplate.opsForList().rightPop(queueName);
-        return queuedMessage != null ? queuedMessage : "Redis queue is empty.";
+        return greetingQueuePort.enqueueAndReadGreeting();
     }
 }

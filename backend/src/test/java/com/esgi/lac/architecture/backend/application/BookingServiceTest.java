@@ -2,7 +2,7 @@ package com.esgi.lac.architecture.backend.application;
 
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
-import com.esgi.lac.architecture.backend.infrastructure.persistence.JpaBookingRepository;
+import com.esgi.lac.architecture.backend.application.repository.BookingRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 class BookingServiceTest {
 
     @Mock
-    private JpaBookingRepository repository;
+    private BookingRepository repository;
 
     @InjectMocks
     private BookingService bookingService;
@@ -28,31 +28,30 @@ class BookingServiceTest {
     @Test
     @DisplayName("Un employé ne doit pas pouvoir réserver plus de 5 jours")
     void employee_should_not_reserve_more_than_5_days() {
-        // Given - On crée un objet Booking avec le rôle EMPLOYEE et 6 jours
+        when(repository.existsBySpotIdAndDate("A01", LocalDate.now().plusDays(1))).thenReturn(false);
+        when(repository.countUpcomingByUser("Alan", "Diot", LocalDate.now())).thenReturn(5L);
+
         Booking booking = new Booking(
-            "A01", "Alan", "Diot", 6, 
-            UserRole.EMPLOYEE, LocalDateTime.now()
+            "A01", "Alan", "Diot",
+            UserRole.EMPLOYEE, LocalDate.now().plusDays(1)
         );
 
-        // When & Then
-        assertThrows(IllegalArgumentException.class, () -> {
-            bookingService.reserveSpot(booking);
-        });
+        assertThrows(IllegalArgumentException.class, () -> bookingService.reserveSpot(booking));
     }
 
     @Test
     @DisplayName("Un manager peut réserver jusqu'à 30 jours")
     void manager_can_reserve_up_to_30_days() {
-        // Given - Un manager qui demande 30 jours
+        when(repository.existsBySpotIdAndDate("B02", LocalDate.now().plusDays(1))).thenReturn(false);
+        when(repository.countUpcomingByUser("Chef", "Admin", LocalDate.now())).thenReturn(29L);
+
         Booking booking = new Booking(
-            "B02", "Chef", "Admin", 30, 
-            UserRole.MANAGER, LocalDateTime.now()
+            "B02", "Chef", "Admin",
+            UserRole.MANAGER, LocalDate.now().plusDays(1)
         );
-        
-        // When
+
         bookingService.reserveSpot(booking);
 
-        // Then - On vérifie que le repository a bien été appelé pour sauvegarder
         verify(repository, times(1)).save(any());
     }
 }
