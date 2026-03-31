@@ -12,11 +12,117 @@ const COLS = Array.from({ length: 10 }, (_, i) => i + 1);
 // Utilitaire pour obtenir la date du jour au format YYYY-MM-DD
 const getTodayString = () => new Date().toISOString().split('T')[0];
 
+const getWaypoints = (spotId: string) => {
+  const row = spotId.charAt(0);
+  const num = parseInt(spotId.slice(1), 10);
+  
+  const targetX = 165 + (num - 1) * 85 + 42.5; 
+  let waypoints = [];
+  
+  waypoints.push({ x: 50, y: -50, rotate: 180 }); // start
+
+  if (row === 'A' || row === 'B') {
+     waypoints.push({ x: 50, y: 180, rotate: 180 }); 
+     waypoints.push({ x: 50, y: 180, rotate: 90 }); 
+     waypoints.push({ x: targetX, y: 180, rotate: 90 }); 
+  } else if (row === 'C' || row === 'D') {
+     waypoints.push({ x: 50, y: 180, rotate: 180 });
+     waypoints.push({ x: 50, y: 180, rotate: 90 });
+     waypoints.push({ x: 1065, y: 180, rotate: 90 }); 
+     waypoints.push({ x: 1065, y: 180, rotate: 180 }); 
+     waypoints.push({ x: 1065, y: 540, rotate: 180 });
+     waypoints.push({ x: 1065, y: 540, rotate: 270 }); 
+     waypoints.push({ x: targetX, y: 540, rotate: 270 });
+  } else if (row === 'E' || row === 'F') {
+     waypoints.push({ x: 50, y: 180, rotate: 180 });
+     waypoints.push({ x: 50, y: 180, rotate: 90 });
+     waypoints.push({ x: 1065, y: 180, rotate: 90 });
+     waypoints.push({ x: 1065, y: 180, rotate: 180 });
+     waypoints.push({ x: 1065, y: 540, rotate: 180 });
+     waypoints.push({ x: 1065, y: 540, rotate: 270 });
+     waypoints.push({ x: 50, y: 540, rotate: 270 });
+     waypoints.push({ x: 50, y: 540, rotate: 180 }); 
+     waypoints.push({ x: 50, y: 900, rotate: 180 });
+     waypoints.push({ x: 50, y: 900, rotate: 90 }); 
+     waypoints.push({ x: targetX, y: 900, rotate: 90 });
+  }
+
+  if (row === 'A' || row === 'C' || row === 'E') {
+     const lastWP = waypoints[waypoints.length - 1];
+     waypoints.push({ ...lastWP, rotate: 180 }); // turn up
+     let targetY = row === 'A' ? 65 : (row === 'C' ? 425 : 785);
+     waypoints.push({ x: targetX, y: targetY, rotate: 180 });
+  } else {
+     const lastWP = waypoints[waypoints.length - 1];
+     let endRot = 0;
+     if (row === 'D') endRot = 360; // 270 -> 360 is shortest
+     else endRot = 0; // B: 90 -> 0. F: 90 -> 0.
+     waypoints.push({ ...lastWP, rotate: endRot }); // turn down
+     let targetY = row === 'B' ? 295 : (row === 'D' ? 655 : 1015);
+     waypoints.push({ x: targetX, y: targetY, rotate: endRot });
+  }
+  
+  return waypoints;
+};
+
+const generateKeyframes = (waypoints: {x: number, y: number, rotate: number}[]) => {
+  let totalDist = 0;
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    let d = Math.max(Math.abs(waypoints[i + 1].x - waypoints[i].x), Math.abs(waypoints[i + 1].y - waypoints[i].y));
+    if (d === 0) d = 80; 
+    totalDist += d;
+  }
+
+  let currentDist = 0;
+  return waypoints.map((wp, i) => {
+    if (i > 0) {
+      let d = Math.max(Math.abs(wp.x - waypoints[i - 1].x), Math.abs(wp.y - waypoints[i - 1].y));
+      if (d === 0) d = 80;
+      currentDist += d;
+    }
+    const percent = ((currentDist / totalDist) * 100).toFixed(2);
+    // translate goes to the exact center, so we offset by 50% of the car's own width/height
+    return `${percent}% { transform: translate(${wp.x}px, ${wp.y}px) translate(-50%, -50%) rotate(${wp.rotate}deg); }`;
+  }).join('\n');
+};
+
 export const ParkingMap = () => {
   const [spots, setSpots] = useState<ParkingSpotResponse[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [animatingSpotId, setAnimatingSpotId] = useState<string | null>(null);
+  const [animationStyle, setAnimationStyle] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
+
+  const handleSpotClick = (id: string, isOccupied: boolean) => {
+    if (isOccupied) {
+      console.log(`Place ${id} occupée.`);
+      return;
+    }
+    if (animatingSpotId) return; // Ignore while another car is animating
+    if (selectedId === id) return; // Already selected
+
+    // Start Animation Sequence
+    setAnimatingSpotId(id);
+    setSelectedId(null);
+    
+    const waypoints = getWaypoints(id);
+    const keyframesRules = generateKeyframes(waypoints);
+    setAnimationStyle(`
+      @keyframes driveCarToSpot {
+        ${keyframesRules}
+      }
+      .animated-car-drive {
+        animation: driveCarToSpot 2.5s linear forwards;
+      }
+    `);
+
+    // Timer completes after 2.5 seconds matching the animation time
+    setTimeout(() => {
+      setAnimatingSpotId(null);
+      setSelectedId(id);
+    }, 2500);
+  };
 
   // Fonction de synchronisation avec le Backend utilisant la date sélectionnée
   const refreshParkingStatus = async () => {
@@ -73,13 +179,7 @@ export const ParkingMap = () => {
             <div 
               key={id} 
               className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''}`}
-              onClick={() => {
-                if (!isOccupied) {
-                  setSelectedId(id);
-                } else {
-                  console.log(`Place ${id} occupée par : ${spotData?.reservedBy}`);
-                }
-              }}
+              onClick={() => handleSpotClick(id, isOccupied)}
             >
               <span className="spot-id">{id}</span>
               
@@ -124,7 +224,14 @@ export const ParkingMap = () => {
       </div>
 
       <div className="parking-container">
+        {animationStyle && <style>{animationStyle}</style>}
+        
         <div className="parking-board">
+          {animatingSpotId && (
+            <div className="animated-car-container animated-car-drive">
+              <img src={BlueCar} alt="Moving Car" className="car-image-moving" />
+            </div>
+          )}
           <div className="sign-board sign-entrance">ENTRÉE</div>
           <div className="sign-board sign-exit">SORTIE</div>
           {/* Continuous SVG Road Overlay */}
