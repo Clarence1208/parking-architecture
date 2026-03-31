@@ -1,17 +1,34 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: parking
+      POSTGRES_USER: parking
+      POSTGRES_PASSWORD: parking
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: dev.Dockerfile
     ports:
       - "8080:8080"
     volumes:
       - ./backend/src:/app/src
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/parking
+      SPRING_DATASOURCE_USERNAME: parking
+      SPRING_DATASOURCE_PASSWORD: parking
+    depends_on:
+      - postgres
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: dev.Dockerfile
     ports:
       - "5173:5173"
     volumes:
@@ -20,3 +37,6 @@ services:
       - ./frontend/public:/app/public
     depends_on:
       - backend
+
+volumes:
+  postgres_data_dev:

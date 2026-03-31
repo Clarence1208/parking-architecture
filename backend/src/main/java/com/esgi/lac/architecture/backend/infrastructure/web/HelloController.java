@@ -26,4 +26,11 @@ public class HelloController {
     public ResponseEntity<String> hello() {
         return ResponseEntity.ok(helloUseCase.greet());
     }
+
+    @Operation(summary = "Say hello from database", description = "Returns a greeting fetched from PostgreSQL")
+    @ApiResponse(responseCode = "200", description = "Database greeting returned successfully")
+    @GetMapping("/hello/db")
+    public ResponseEntity<String> helloDb() {
+        return ResponseEntity.ok(helloUseCase.greetFromDb());
+    }
 }
