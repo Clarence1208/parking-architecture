@@ -6,5 +6,6 @@ public record Booking(
     String spotId,
     String email,
     UserRole role,
-    LocalDate bookingDate
+    LocalDate startDate,
+    LocalDate endDate
 ) {}

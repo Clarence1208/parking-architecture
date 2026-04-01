@@ -93,6 +93,96 @@
   transform: translateY(-2px);
 }
 
+/* Date range section */
+.modal-date-range {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.date-range-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.date-range-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.date-range-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.date-range-value {
+  color: #f1f5f9;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+}
+
+.date-range-input {
+  color: #f1f5f9;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color-scheme: dark;
+}
+
+.date-range-input:hover {
+  border-color: #475569;
+}
+
+.date-range-input:focus {
+  outline: none;
+  border-color: #eab308;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.15);
+}
+
+.date-range-separator {
+  color: #475569;
+  display: flex;
+  align-items: center;
+  padding-top: 1.25rem;
+}
+
+.date-range-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #334155;
+}
+
+.days-count {
+  color: #eab308;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.days-limit {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
 @keyframes modalPop {
   from { opacity: 0; transform: scale(0.9) translateY(20px); }
   to { opacity: 1; transform: scale(1) translateY(0); }

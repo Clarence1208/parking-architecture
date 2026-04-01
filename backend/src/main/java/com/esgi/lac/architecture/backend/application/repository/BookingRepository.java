@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface BookingRepository {
-    boolean existsBySpotIdAndDate(String spotId, LocalDate bookingDate);
-    boolean existsByEmailAndDate(String email, LocalDate bookingDate);
-    long countUpcomingByUser(String email, LocalDate fromDate);
+    boolean existsOverlappingSpotBooking(String spotId, LocalDate startDate, LocalDate endDate);
+    boolean existsOverlappingUserBooking(String email, LocalDate startDate, LocalDate endDate);
+    long countUpcomingDaysByUser(String email, LocalDate fromDate);
     void save(Booking booking);
-    List<Booking> findAllByDate(LocalDate date);
+    List<Booking> findAllOverlappingDate(LocalDate date);
 }

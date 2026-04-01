@@ -2,12 +2,14 @@ package com.esgi.lac.architecture.backend.application;
 
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
+import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import com.esgi.lac.architecture.backend.application.repository.BookingRepository;
 import com.esgi.lac.architecture.backend.application.usecase.BookingUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -22,28 +24,38 @@ public class BookingService implements BookingUseCase {
     @Override
     @Transactional
     public void reserveSpot(Booking booking) {
-        //Validation de la date
-        if (booking.bookingDate().isBefore(LocalDate.now())) {
+        // Validation des dates
+        if (booking.startDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("On ne peut pas réserver dans le passé !");
         }
-
-        // Vérifier si un utilisateur a déjà une réservation pour le même jour
-        if (repository.existsByEmailAndDate(booking.email(), booking.bookingDate())) {
-            throw new IllegalStateException("Vous avez déjà une réservation pour cette date !");
+        if (booking.endDate().isBefore(booking.startDate())) {
+            throw new IllegalArgumentException("La date de fin ne peut pas être avant la date de début !");
         }
 
-        // Vérifier si la place est déjà prise CE JOUR-LÀ
-        if (repository.existsBySpotIdAndDate(booking.spotId(), booking.bookingDate())) {
-            throw new IllegalStateException("Cette place est déjà réservée pour cette date.");
+        // Vérifier si l'utilisateur a déjà une réservation qui chevauche cet intervalle
+        if (repository.existsOverlappingUserBooking(booking.email(), booking.startDate(), booking.endDate())) {
+            throw new IllegalStateException("Vous avez déjà une réservation qui chevauche ces dates !");
         }
+
+        // Vérifier si la place est déjà prise sur cet intervalle
+        if (repository.existsOverlappingSpotBooking(booking.spotId(), booking.startDate(), booking.endDate())) {
+            throw new IllegalStateException("Cette place est déjà réservée sur cet intervalle.");
+        }
+
+        // Calculer le nombre de jours demandés
+        long requestedDays = ChronoUnit.DAYS.between(booking.startDate(), booking.endDate()) + 1;
 
         // Vérifier le quota (5 ou 30 jours selon le rôle)
-        long currentBookings = repository.countUpcomingByUser(
+        long currentBookedDays = repository.countUpcomingDaysByUser(
             booking.email(),
             LocalDate.now()
         );
-        if (currentBookings >= booking.role().getMaxNumberOfBookingDays()) {
-            throw new IllegalArgumentException("Quota de " + booking.role().getMaxNumberOfBookingDays() + " jours atteint !");
+        long maxDays = booking.role().getMaxNumberOfBookingDays();
+        if (currentBookedDays + requestedDays > maxDays) {
+            throw new IllegalArgumentException(
+                "Quota de " + maxDays + " jours atteint ! Vous avez déjà " + currentBookedDays +
+                " jour(s) réservé(s) et vous demandez " + requestedDays + " jour(s)."
+            );
         }
 
         // Sauvegarde
@@ -52,15 +64,15 @@ public class BookingService implements BookingUseCase {
 
     @Override
     public List<BookingSpotStatus> getSpotsByDate(LocalDate date) {
-        // On récupère uniquement les réservations du jour 'date'
-        List<Booking> dayBookings = repository.findAllByDate(date);
+        // On récupère les réservations dont l'intervalle couvre la date demandée
+        List<Booking> dayBookings = repository.findAllOverlappingDate(date);
 
         return dayBookings.stream()
             .map(b -> new BookingSpotStatus(
                 b.spotId(),
                 true,
                 b.email(),
-                b.bookingDate()
+                date
             ))
             .toList();
     }
@@ -68,5 +80,12 @@ public class BookingService implements BookingUseCase {
     @Override
     public List<BookingSpotStatus> getAllSpots() {
         return getSpotsByDate(LocalDate.now());
+    }
+
+    @Override
+    public long getRemainingDays(String email, UserRole role) {
+        long usedDays = repository.countUpcomingDaysByUser(email, LocalDate.now());
+        long maxDays = role.getMaxNumberOfBookingDays();
+        return Math.max(0, maxDays - usedDays);
     }
 }

@@ -17,6 +17,7 @@ public class BookingEntity {
     private String spotId;
     private String email;
     private String role;
-    private LocalDate bookingDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
 }

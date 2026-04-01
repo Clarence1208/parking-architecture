@@ -275,14 +275,15 @@ export const ParkingMap = () => {
     setSelectedId(null);
   }, [selectedDate]);
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (endDate: string) => {
     if (!selectedId) return;
 
     try {
       // On envoie les données correspondant au BookingRequestDTO du Backend
       await bookingService.createReservation({
         spotId: selectedId,
-        bookingDate: selectedDate // La date choisie sur le calendrier
+        startDate: selectedDate, // La date choisie sur le calendrier
+        endDate: endDate         // La date de fin choisie dans la modale
       });
 
       setShowModal(false);
@@ -451,7 +452,7 @@ export const ParkingMap = () => {
       {showModal && selectedId && (
         <ReservationModal 
           spotId={selectedId} 
-          bookingDate={selectedDate} // On passe la date à la modale pour info
+          startDate={selectedDate}
           onClose={() => setShowModal(false)} 
           onConfirm={handleConfirm}
         />

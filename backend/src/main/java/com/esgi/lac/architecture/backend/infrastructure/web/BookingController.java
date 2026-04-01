@@ -35,7 +35,8 @@ public class BookingController {
                     dto.spotId(),
                     email,
                     UserRole.valueOf(roleString),
-                    LocalDate.parse(dto.bookingDate())
+                    LocalDate.parse(dto.startDate()),
+                    LocalDate.parse(dto.endDate())
             );
 
             bookingUseCase.reserveSpot(booking);
@@ -61,5 +62,18 @@ public class BookingController {
                 .toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    public record RemainingDaysResponse(long remainingDays, int maxDays, String role) {}
+
+    @GetMapping("/remaining-days")
+    public ResponseEntity<RemainingDaysResponse> getRemainingDays(Authentication authentication) {
+        String email = authentication.getName();
+        String roleString = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+        UserRole role = UserRole.valueOf(roleString);
+
+        long remaining = bookingUseCase.getRemainingDays(email, role);
+
+        return ResponseEntity.ok(new RemainingDaysResponse(remaining, role.getMaxNumberOfBookingDays(), roleString));
     }
 }

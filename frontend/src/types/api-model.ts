@@ -1,7 +1,8 @@
 //BookingRequestDTO
 export interface ParkingReservationRequest {
   spotId: string;
-  bookingDate: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface ParkingSpotResponse {

@@ -7,6 +7,7 @@ import com.esgi.lac.architecture.backend.infrastructure.persistence.entity.Booki
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
@@ -19,18 +20,25 @@ public class BookingRepositoryAdapter implements BookingRepository {
     }
 
     @Override
-    public boolean existsBySpotIdAndDate(String spotId, LocalDate bookingDate) {
-        return jpaBookingRepository.findBySpotIdAndBookingDate(spotId, bookingDate).isPresent();
+    public boolean existsOverlappingSpotBooking(String spotId, LocalDate startDate, LocalDate endDate) {
+        return jpaBookingRepository.existsOverlappingSpotBooking(spotId, startDate, endDate);
     }
 
     @Override
-    public boolean existsByEmailAndDate(String email, LocalDate bookingDate) {
-        return jpaBookingRepository.existsByEmailAndBookingDate(email, bookingDate);
+    public boolean existsOverlappingUserBooking(String email, LocalDate startDate, LocalDate endDate) {
+        return jpaBookingRepository.existsOverlappingUserBooking(email, startDate, endDate);
     }
 
     @Override
-    public long countUpcomingByUser(String email, LocalDate fromDate) {
-        return jpaBookingRepository.countByEmailAndBookingDateGreaterThanEqual(email, fromDate);
+    public long countUpcomingDaysByUser(String email, LocalDate fromDate) {
+        List<BookingEntity> upcoming = jpaBookingRepository.findUpcomingByUser(email, fromDate);
+        return upcoming.stream()
+                .mapToLong(b -> {
+                    // On ne compte que les jours >= fromDate
+                    LocalDate effectiveStart = b.getStartDate().isBefore(fromDate) ? fromDate : b.getStartDate();
+                    return ChronoUnit.DAYS.between(effectiveStart, b.getEndDate()) + 1;
+                })
+                .sum();
     }
 
     @Override
@@ -39,19 +47,21 @@ public class BookingRepositoryAdapter implements BookingRepository {
         entity.setSpotId(booking.spotId());
         entity.setEmail(booking.email());
         entity.setRole(booking.role().name());
-        entity.setBookingDate(booking.bookingDate());
+        entity.setStartDate(booking.startDate());
+        entity.setEndDate(booking.endDate());
         jpaBookingRepository.save(entity);
     }
 
     @Override
-    public List<Booking> findAllByDate(LocalDate date) {
-        return jpaBookingRepository.findAllByBookingDate(date)
+    public List<Booking> findAllOverlappingDate(LocalDate date) {
+        return jpaBookingRepository.findAllOverlappingDate(date)
             .stream()
             .map(entity -> new Booking(
                 entity.getSpotId(),
                 entity.getEmail(),
                 parseRole(entity.getRole()),
-                entity.getBookingDate()
+                entity.getStartDate(),
+                entity.getEndDate()
             ))
             .toList();
     }
