@@ -58,6 +58,7 @@ public class BookingRepositoryAdapter implements BookingRepository {
         return jpaBookingRepository.findAllOverlappingDate(date)
             .stream()
             .map(entity -> new Booking(
+                    entity.getId(),
                 entity.getSpotId(),
                 entity.getEmail(),
                 parseRole(entity.getRole()),
@@ -83,6 +84,7 @@ public class BookingRepositoryAdapter implements BookingRepository {
     public Optional<Booking> findById(Long id) {
         return jpaBookingRepository.findById(id)
                 .map(entity -> new Booking(
+                        entity.getId(),
                         entity.getSpotId(),
                         entity.getEmail(),
                         UserRole.valueOf(entity.getRole()),

@@ -32,6 +32,7 @@ public class BookingController {
             String roleString = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
             Booking booking = new Booking(
+                    null,
                     dto.spotId(),
                     email,
                     UserRole.valueOf(roleString),
@@ -54,6 +55,7 @@ public class BookingController {
         List<BookingResponseDTO> response = bookingUseCase.getSpotsByDate(targetDate)
                 .stream()
                 .map(spot -> new BookingResponseDTO(
+                        spot.bookingId(),
                         spot.spotId(),
                         spot.occupied(),
                         spot.reservedBy(),

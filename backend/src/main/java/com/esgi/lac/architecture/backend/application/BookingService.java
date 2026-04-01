@@ -69,10 +69,11 @@ public class BookingService implements BookingUseCase {
 
         return dayBookings.stream()
             .map(b -> new BookingSpotStatus(
-                b.spotId(),
-                true,
-                b.email(),
-                date
+                    b.id(),
+                    b.spotId(),
+                    true,
+                    b.email(),
+                    date
             ))
             .toList();
     }
