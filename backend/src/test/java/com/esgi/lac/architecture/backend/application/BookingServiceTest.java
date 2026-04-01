@@ -28,11 +28,12 @@ class BookingServiceTest {
     @Test
     @DisplayName("Un employé ne doit pas pouvoir réserver plus de 5 jours")
     void employee_should_not_reserve_more_than_5_days() {
+        when(repository.existsByEmailAndDate("alan@test.com", LocalDate.now().plusDays(1))).thenReturn(false);
         when(repository.existsBySpotIdAndDate("A01", LocalDate.now().plusDays(1))).thenReturn(false);
-        when(repository.countUpcomingByUser("Alan", "Diot", LocalDate.now())).thenReturn(5L);
+        when(repository.countUpcomingByUser("alan@test.com", LocalDate.now())).thenReturn(5L);
 
         Booking booking = new Booking(
-            "A01", "Alan", "Diot",
+            "A01", "alan@test.com",
             UserRole.EMPLOYEE, LocalDate.now().plusDays(1)
         );
 
@@ -42,11 +43,12 @@ class BookingServiceTest {
     @Test
     @DisplayName("Un manager peut réserver jusqu'à 30 jours")
     void manager_can_reserve_up_to_30_days() {
+        when(repository.existsByEmailAndDate("chef@test.com", LocalDate.now().plusDays(1))).thenReturn(false);
         when(repository.existsBySpotIdAndDate("B02", LocalDate.now().plusDays(1))).thenReturn(false);
-        when(repository.countUpcomingByUser("Chef", "Admin", LocalDate.now())).thenReturn(29L);
+        when(repository.countUpcomingByUser("chef@test.com", LocalDate.now())).thenReturn(29L);
 
         Booking booking = new Booking(
-            "B02", "Chef", "Admin",
+            "B02", "chef@test.com",
             UserRole.MANAGER, LocalDate.now().plusDays(1)
         );
 

@@ -24,16 +24,20 @@ public class BookingRepositoryAdapter implements BookingRepository {
     }
 
     @Override
-    public long countUpcomingByUser(String firstName, String lastName, LocalDate fromDate) {
-        return jpaBookingRepository.countByFirstNameAndLastNameAndBookingDateGreaterThanEqual(firstName, lastName, fromDate);
+    public boolean existsByEmailAndDate(String email, LocalDate bookingDate) {
+        return jpaBookingRepository.existsByEmailAndBookingDate(email, bookingDate);
+    }
+
+    @Override
+    public long countUpcomingByUser(String email, LocalDate fromDate) {
+        return jpaBookingRepository.countByEmailAndBookingDateGreaterThanEqual(email, fromDate);
     }
 
     @Override
     public void save(Booking booking) {
         BookingEntity entity = new BookingEntity();
         entity.setSpotId(booking.spotId());
-        entity.setFirstName(booking.firstName());
-        entity.setLastName(booking.lastName());
+        entity.setEmail(booking.email());
         entity.setRole(booking.role().name());
         entity.setBookingDate(booking.bookingDate());
         jpaBookingRepository.save(entity);
@@ -45,8 +49,7 @@ public class BookingRepositoryAdapter implements BookingRepository {
             .stream()
             .map(entity -> new Booking(
                 entity.getSpotId(),
-                entity.getFirstName(),
-                entity.getLastName(),
+                entity.getEmail(),
                 parseRole(entity.getRole()),
                 entity.getBookingDate()
             ))

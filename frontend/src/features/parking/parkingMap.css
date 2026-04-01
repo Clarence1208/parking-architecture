@@ -200,8 +200,18 @@
   background-color: rgba(59, 130, 246, 0.1);
 }
 
+.spot.my-reservation {
+  background-color: rgba(59, 130, 246, 0.15);
+  box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.3);
+  cursor: not-allowed;
+}
+
 .spot.occupied {
   cursor: not-allowed;
+}
+
+.my-reservation-badge {
+  /* You can add custom animation here if desired */
 }
 
 @keyframes carFadeIn {
@@ -327,4 +337,98 @@
   height: auto;
   filter: drop-shadow(0 15px 15px rgba(0,0,0,0.8));
   background-color: transparent;
+}
+/* Date Navigation Styles */
+.date-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: #0f172a;
+}
+
+.date-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-arrow:hover:not(:disabled) {
+  background-color: #1e293b;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.date-arrow:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.date-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: #1e293b;
+}
+
+.date-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #1e293b;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  min-width: 280px;
+  justify-content: center;
+  position: relative;
+}
+
+.date-text {
+  color: #f8fafc;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.date-calendar-icon {
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.date-calendar-icon:hover {
+  color: #3b82f6;
+}
+
+.hidden-date-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Ensure hidden date input doesn't block clicks on arrows */
+.hidden-date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
 }

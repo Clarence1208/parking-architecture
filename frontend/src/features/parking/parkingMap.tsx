@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { bookingService } from '../../services/bookingService';
 import { ReservationModal } from './reservationModal';
+import { useAuth } from '../../store/AuthContext';
 import type { ParkingSpotResponse } from '../../types/api-model';
 import './parkingMap.css';
 
@@ -160,6 +161,7 @@ const generateKeyframes = (waypoints: {x: number, y: number, rotate: number}[]) 
 };
 
 export const ParkingMap = () => {
+  const { user } = useAuth();
   const [spots, setSpots] = useState<ParkingSpotResponse[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -167,9 +169,33 @@ export const ParkingMap = () => {
   const [animationStyle, setAnimationStyle] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
 
+  const adjustDate = (days: number) => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + days);
+    const newDateStr = d.toISOString().split('T')[0];
+    if (newDateStr >= getTodayString()) {
+      setSelectedDate(newDateStr);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    }).format(d);
+  };
+
+  const hasReservationToday = spots.some(s => s.occupied && s.reservedBy === user?.email);
+
   const handleSpotClick = (id: string, isOccupied: boolean) => {
     if (isOccupied) {
       console.log(`Place ${id} occupée.`);
+      return;
+    }
+    if (hasReservationToday) {
+      alert("Vous avez déjà une réservation sur cette date. Vous ne pouvez pas réserver plusieurs places.");
       return;
     }
     if (animatingSpotId) return; // Ignore while another car is animating
@@ -249,16 +275,13 @@ export const ParkingMap = () => {
     setSelectedId(null);
   }, [selectedDate]);
 
-  const handleConfirm = async (firstName: string, lastName: string, role: string) => {
+  const handleConfirm = async () => {
     if (!selectedId) return;
 
     try {
       // On envoie les données correspondant au BookingRequestDTO du Backend
       await bookingService.createReservation({
         spotId: selectedId,
-        firstName,
-        lastName,
-        role: role as 'EMPLOYEE' | 'MANAGER',
         bookingDate: selectedDate // La date choisie sur le calendrier
       });
 
@@ -277,14 +300,15 @@ export const ParkingMap = () => {
       <div className="spots-grid">
         {COLS.map((num) => {
           const id = `${letter}${num.toString().padStart(2, '0')}`;
-          const spotData = spots.find(s => s.id === id);
-          const isOccupied = !!spotData;
+          const spotData = spots.find(s => s.spotId === id);
+          const isOccupied = !!spotData && spotData.occupied;
           const isMine = selectedId === id;
+          const isMyReservation = isOccupied && spotData?.reservedBy === user?.email;
 
           return (
             <div 
               key={id} 
-              className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''}`}
+              className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''} ${isMyReservation ? 'my-reservation' : ''}`}
               onClick={() => handleSpotClick(id, isOccupied)}
             >
               <span className="spot-id">{id}</span>
@@ -293,7 +317,16 @@ export const ParkingMap = () => {
                 <span className="electric-bolt">⚡</span>
               )}
               
-              {isOccupied && (
+              {isMyReservation && (
+                <div className="car-container my-reservation-badge">
+                  <img src={BlueCar} alt="Ma réservation" className="car-image" />
+                  <div className="driver-name" style={{ color: '#60a5fa', fontWeight: 'bold' }}>
+                    Ma place
+                  </div>
+                </div>
+              )}
+
+              {isOccupied && !isMyReservation && (
                 <div className="car-container">
                   <img src={RedCar} alt="Occupé" className="car-image" />
                   <div className="driver-name">
@@ -302,7 +335,7 @@ export const ParkingMap = () => {
                 </div>
               )}
 
-              {isMine && (
+              {isMine && !isMyReservation && (
                 <div className="car-container">
                   <img src={BlueCar} alt="Sélectionné" className="car-image" />
                 </div>
@@ -318,15 +351,37 @@ export const ParkingMap = () => {
     <div className="parking-layout">
       {/* Sélecteur de date pour naviguer dans le planning */}
       <div className="date-navigation">
-        <label htmlFor="parking-date">Consulter le parking pour le : </label>
-        <input 
-          type="date" 
-          id="parking-date"
-          value={selectedDate}
-          min={getTodayString()} // On empêche de réserver dans le passé
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="date-input"
-        />
+        <button 
+          className="date-arrow" 
+          onClick={() => adjustDate(-1)}
+          disabled={selectedDate <= getTodayString()}
+          title="Jour précédent"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        
+        <div className="date-display">
+          <span className="date-text">{formatDate(selectedDate)}</span>
+          <label className="date-calendar-icon" htmlFor="parking-date" title="Choisir une date">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          </label>
+          <input 
+             type="date" 
+             id="parking-date"
+             value={selectedDate}
+             min={getTodayString()}
+             onChange={(e) => setSelectedDate(e.target.value)}
+             className="hidden-date-input"
+          />
+        </div>
+
+        <button 
+          className="date-arrow" 
+          onClick={() => adjustDate(1)}
+          title="Jour suivant"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
       </div>
 
       <div className="parking-container">

@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
+import { useAuth } from "../../store/AuthContext";
 
 interface NavItem {
   to: string;
@@ -23,6 +24,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export default function Sidebar() {
+  const { user, logout } = useAuth();
+
   return (
     <aside className="sidebar">
       {/* Logo */}
@@ -50,7 +53,7 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === "/"}
-            className={({ isActive }) =>
+            className={({ isActive }: { isActive: boolean }) =>
               `sidebar__link${isActive ? " sidebar__link--active" : ""}`
             }
           >
@@ -77,8 +80,22 @@ export default function Sidebar() {
             </svg>
           </div>
           <div className="sidebar__avatar-info">
-            <span className="sidebar__avatar-name">Personne non-connectée</span>
+            <span className="sidebar__avatar-name">{user ? user.email : "Personne non-connectée"}</span>
+            {user && <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{user.role}</span>}
           </div>
+          {user && (
+            <button 
+              onClick={logout} 
+              style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', marginLeft: 'auto', padding: '0.5rem' }}
+              title="Logout"
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </aside>

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+
 @Tag(name = "Booking", description = "Parking booking operations")
 @RestController
 @RequestMapping("/api/booking")
@@ -24,18 +26,26 @@ public class BookingController {
     }
 
     @PostMapping("/reserve")
-    public ResponseEntity<Void> reserve(@RequestBody BookingRequestDTO dto) {
-        Booking booking = new Booking(
-                dto.spotId(),
-                dto.firstName(),
-                dto.lastName(),
-                UserRole.valueOf(dto.role()),
-                LocalDate.parse(dto.bookingDate())
-        );
+    public ResponseEntity<?> reserve(@RequestBody BookingRequestDTO dto, Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            String roleString = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
-        bookingUseCase.reserveSpot(booking);
-        return ResponseEntity.ok().build();
+            Booking booking = new Booking(
+                    dto.spotId(),
+                    email,
+                    UserRole.valueOf(roleString),
+                    LocalDate.parse(dto.bookingDate())
+            );
+
+            bookingUseCase.reserveSpot(booking);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+        }
     }
+
+    public record ErrorResponse(String message) {}
     @GetMapping("/spots")
     public ResponseEntity<List<BookingResponseDTO>> getSpots(@RequestParam(required = false) String date) {
         LocalDate targetDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();

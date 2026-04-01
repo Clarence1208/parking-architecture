@@ -4,8 +4,7 @@ import java.time.LocalDate;
 
 public record Booking(
     String spotId,
-    String firstName,
-    String lastName,
+    String email,
     UserRole role,
     LocalDate bookingDate
 ) {}

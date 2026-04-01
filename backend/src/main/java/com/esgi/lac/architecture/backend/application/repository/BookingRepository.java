@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface BookingRepository {
     boolean existsBySpotIdAndDate(String spotId, LocalDate bookingDate);
-    long countUpcomingByUser(String firstName, String lastName, LocalDate fromDate);
+    boolean existsByEmailAndDate(String email, LocalDate bookingDate);
+    long countUpcomingByUser(String email, LocalDate fromDate);
     void save(Booking booking);
     List<Booking> findAllByDate(LocalDate date);
 }

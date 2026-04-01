@@ -27,6 +27,11 @@ public class BookingService implements BookingUseCase {
             throw new IllegalArgumentException("On ne peut pas réserver dans le passé !");
         }
 
+        // Vérifier si un utilisateur a déjà une réservation pour le même jour
+        if (repository.existsByEmailAndDate(booking.email(), booking.bookingDate())) {
+            throw new IllegalStateException("Vous avez déjà une réservation pour cette date !");
+        }
+
         // Vérifier si la place est déjà prise CE JOUR-LÀ
         if (repository.existsBySpotIdAndDate(booking.spotId(), booking.bookingDate())) {
             throw new IllegalStateException("Cette place est déjà réservée pour cette date.");
@@ -34,8 +39,7 @@ public class BookingService implements BookingUseCase {
 
         // Vérifier le quota (5 ou 30 jours selon le rôle)
         long currentBookings = repository.countUpcomingByUser(
-            booking.firstName(),
-            booking.lastName(),
+            booking.email(),
             LocalDate.now()
         );
         if (currentBookings >= booking.role().getMaxNumberOfBookingDays()) {
@@ -55,7 +59,7 @@ public class BookingService implements BookingUseCase {
             .map(b -> new BookingSpotStatus(
                 b.spotId(),
                 true,
-                b.firstName() + " " + b.lastName(),
+                b.email(),
                 b.bookingDate()
             ))
             .toList();
