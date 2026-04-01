@@ -88,4 +88,18 @@ public class BookingService implements BookingUseCase {
         long maxDays = role.getMaxNumberOfBookingDays();
         return Math.max(0, maxDays - usedDays);
     }
+
+    @Override
+    @Transactional
+    public void cancelBooking(Long bookingId, String currentUserEmail, UserRole currentUserRole) {
+        Booking booking = repository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Réservation introuvable"));
+        boolean isOwner = booking.email().equals(currentUserEmail);
+        boolean isSecretary = currentUserRole == UserRole.SECRETARY;
+
+        if (!isOwner && !isSecretary) {
+            throw new IllegalStateException("Vous n'avez pas les droits pour annuler cette réservation.");
+        }
+        repository.deleteById(bookingId);
+    }
 }

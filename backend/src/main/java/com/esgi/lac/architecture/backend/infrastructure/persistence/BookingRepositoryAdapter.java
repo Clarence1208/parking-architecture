@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class BookingRepositoryAdapter implements BookingRepository {
@@ -71,5 +72,22 @@ public class BookingRepositoryAdapter implements BookingRepository {
             return UserRole.EMPLOYEE;
         }
         return UserRole.valueOf(role);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpaBookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<Booking> findById(Long id) {
+        return jpaBookingRepository.findById(id)
+                .map(entity -> new Booking(
+                        entity.getSpotId(),
+                        entity.getEmail(),
+                        UserRole.valueOf(entity.getRole()),
+                        entity.getStartDate(),
+                        entity.getEndDate()
+                ));
     }
 }

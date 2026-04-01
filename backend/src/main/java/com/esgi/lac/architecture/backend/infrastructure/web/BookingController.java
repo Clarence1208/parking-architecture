@@ -76,4 +76,20 @@ public class BookingController {
 
         return ResponseEntity.ok(new RemainingDaysResponse(remaining, role.getMaxNumberOfBookingDays(), roleString));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> cancel(@PathVariable Long id, Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            String roleString = authentication.getAuthorities().iterator().next()
+                    .getAuthority().replace("ROLE_", "");
+            UserRole role = UserRole.valueOf(roleString);
+
+            bookingUseCase.cancelBooking(id, email, role);
+
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+        }
+    }
 }
