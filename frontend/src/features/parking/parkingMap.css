@@ -434,29 +434,31 @@
   height: 100%;
   cursor: pointer;
 }
-.btn-cancel-mini {
+.btn-cancel-hover {
   margin-top: 4px;
-  background-color: #ef4444; /* Rouge harmonieux */
+  background-color: #ef4444;
   color: white;
   border: none;
+  padding: 2px 6px;
   border-radius: 4px;
   font-size: 9px;
-  padding: 2px 8px;
-  text-transform: uppercase;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  transition: all 0.2s ease;
+  
+  /* Masqué par défaut */
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
 }
 
-.btn-cancel-mini:hover {
-  background-color: #dc2626;
-  transform: scale(1.05);
+/* On affiche au survol de la place */
+.spot:hover .btn-cancel-hover {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .driver-name {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
 }
