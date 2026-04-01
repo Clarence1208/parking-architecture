@@ -255,8 +255,18 @@ export const ParkingMap = () => {
       setAnimatingSpotId(null);
     }, Math.floor(durationMs));
   };
+    const handleCancel = async (e: React.MouseEvent, bookingId: number) => {
+    e.stopPropagation();
+    if (!window.confirm("Voulez-vous vraiment annuler cette réservation ?")) return;
 
-  // Fonction de synchronisation avec le Backend utilisant la date sélectionnée
+    try {
+        await bookingService.cancelReservation(bookingId);
+        await refreshParkingStatus();
+        setSelectedId(null);
+    } catch (error) {
+        alert(error instanceof Error ? error.message : "Erreur lors de l'annulation");
+    }
+    };
   const refreshParkingStatus = async () => {
     try {
       // On passe la date au service pour filtrer le parking
@@ -295,58 +305,86 @@ export const ParkingMap = () => {
     }
   };
 
-  const renderRow = (letter: string) => (
-    <div className={`row-container row-${letter}`} key={letter}>
-      <div className="row-label">{letter}</div>
-      <div className="spots-grid">
-        {COLS.map((num) => {
-          const id = `${letter}${num.toString().padStart(2, '0')}`;
-          const spotData = spots.find(s => s.spotId === id);
-          const isOccupied = !!spotData && spotData.occupied;
-          const isMine = selectedId === id;
-          const isMyReservation = isOccupied && spotData?.reservedBy === user?.email;
+const renderRow = (letter: string) => (
+  <div className={`row-container row-${letter}`} key={letter}>
+    <div className="row-label">{letter}</div>
+    <div className="spots-grid">
+      {COLS.map((num) => {
+        const id = `${letter}${num.toString().padStart(2, '0')}`;
+        const spotData = spots.find(s => s.spotId === id);
+        const isOccupied = !!spotData && spotData.occupied;
+        
+        // Est-ce MA réservation confirmée en base ?
+        const isMyReservation = isOccupied && spotData?.reservedBy === user?.email;
+        
+        // Est-ce la place que je viens de cliquer (animation en cours ou sélectionnée) ?
+        const isMine = selectedId === id;
 
-          return (
-            <div 
-              key={id} 
-              className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''} ${isMyReservation ? 'my-reservation' : ''}`}
-              onClick={() => handleSpotClick(id, isOccupied)}
-            >
-              <span className="spot-id">{id}</span>
-              
-              {(letter === 'A' || letter === 'F') && !isOccupied && !isMine && (
-                <span className="electric-bolt">⚡</span>
-              )}
-              
-              {isMyReservation && (
-                <div className="car-container my-reservation-badge">
-                  <img src={BlueCar} alt="Ma réservation" className="car-image" />
-                  <div className="driver-name" style={{ color: '#60a5fa', fontWeight: 'bold' }}>
-                    Ma place
-                  </div>
-                </div>
-              )}
+        // Condition pour afficher le bouton d'annulation : 
+        // 1. La place est occupée 
+        // 2. L'utilisateur a cliqué dessus (selectedId === id)
+        // 3. C'est sa place OU il est secrétaire
+        const showCancelButton = isOccupied && (selectedId === id) && (isMyReservation || user?.role === 'SECRETARY');
 
-              {isOccupied && !isMyReservation && (
-                <div className="car-container">
-                  <img src={RedCar} alt="Occupé" className="car-image" />
-                  <div className="driver-name">
-                    {spotData?.reservedBy}
-                  </div>
+        return (
+          <div 
+            key={id} 
+            className={`spot ${isOccupied ? 'occupied' : ''} ${isMine ? 'my-selection' : ''} ${isMyReservation ? 'my-reservation' : ''}`}
+            onClick={() => {
+              // Si occupée, on ne lance pas l'anim, on sélectionne juste pour afficher "Annuler"
+              if (isOccupied) {
+                setSelectedId(id);
+              } else {
+                handleSpotClick(id, isOccupied);
+              }
+            }}
+          >
+            <span className="spot-id">{id}</span>
+            
+            {/* Éclair pour les places électriques libres */}
+            {(letter === 'A' || letter === 'F') && !isOccupied && !isMine && (
+              <span className="electric-bolt">⚡</span>
+            )}
+            
+            {/* LOGIQUE D'AFFICHAGE UNIQUE : Une seule voiture possible */}
+            {isMyReservation ? (
+              /* CAS 1 : C'est ma réservation confirmée */
+              <div className="car-container my-reservation-badge">
+                <img src={BlueCar} alt="Ma réservation" className="car-image" />
+                <div className="driver-name" style={{ color: '#60a5fa', fontWeight: 'bold' }}>
+                  Ma place
+                  {showCancelButton && spotData?.bookingId && (
+                    <button className="btn-cancel-mini" onClick={(e) => handleCancel(e, spotData.bookingId!)}>
+                      ANNULER
+                    </button>
+                  )}
                 </div>
-              )}
-
-              {isMine && !isMyReservation && (
-                <div className="car-container">
-                  <img src={BlueCar} alt="Sélectionné" className="car-image" />
+              </div>
+            ) : isOccupied ? (
+              /* CAS 2 : C'est la place de quelqu'un d'autre */
+              <div className="car-container">
+                <img src={RedCar} alt="Occupé" className="car-image" />
+                <div className="driver-name">
+                  {spotData?.reservedBy}
+                  {showCancelButton && spotData?.bookingId && (
+                    <button className="btn-cancel-mini" onClick={(e) => handleCancel(e, spotData.bookingId!)}>
+                      ANNULER
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              </div>
+            ) : isMine ? (
+              /* CAS 3 : Place libre que je suis en train de sélectionner */
+              <div className="car-container">
+                <img src={BlueCar} alt="Sélectionné" className="car-image" />
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
     </div>
-  );
+  </div>
+);
 
   return (
     <div className="parking-layout">

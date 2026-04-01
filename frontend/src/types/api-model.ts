@@ -6,6 +6,7 @@ export interface ParkingReservationRequest {
 }
 
 export interface ParkingSpotResponse {
+    bookingId?: number;
   spotId: string; 
   occupied: boolean;
   reservedBy?: string;

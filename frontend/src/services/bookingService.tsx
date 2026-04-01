@@ -30,5 +30,9 @@ export const bookingService = {
    */
   async getRemainingDays(): Promise<RemainingDaysResponse> {
     return apiClient.get('/booking/remaining-days');
-  }
+  },
+
+    async cancelReservation(bookingId: number): Promise<void> {
+        return apiClient.delete(`/booking/${bookingId}`);
+    }
 };
