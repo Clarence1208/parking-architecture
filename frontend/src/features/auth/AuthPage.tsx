@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../store/AuthContext';
 import { authService } from '../../services/authService';
+import type { RoleResponse } from '../../services/authService';
 import './AuthPage.css';
 
 export const AuthPage: React.FC = () => {
@@ -9,7 +10,19 @@ export const AuthPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('EMPLOYEE');
+    const [rolesList, setRolesList] = useState<RoleResponse[]>([]);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        authService.getRoles()
+            .then(data => {
+                setRolesList(data);
+                if (data.length > 0) {
+                    setRole(data[0].name);
+                }
+            })
+            .catch(err => console.error('Failed to fetch roles', err));
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -60,9 +73,11 @@ export const AuthPage: React.FC = () => {
                         <div className="input-group">
                             <label>Role</label>
                             <select value={role} onChange={e => setRole(e.target.value)}>
-                                <option value="EMPLOYEE">Employee</option>
-                                <option value="SECRETARY">Secretary</option>
-                                <option value="MANAGER">Manager</option>
+                                {rolesList.map(r => (
+                                    <option key={r.name} value={r.name}>
+                                        {r.name} (Max {r.maxNumberOfBookingDays} days)
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     )}

@@ -8,6 +8,10 @@ import com.esgi.lac.architecture.backend.infrastructure.web.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.esgi.lac.architecture.backend.domain.model.UserRole;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,5 +36,14 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/roles")
+    public ResponseEntity<List<RoleResponse>> getRoles() {
+        List<RoleResponse> roles = Arrays.stream(UserRole.values())
+                .map(role -> new RoleResponse(role.name(), role.getMaxNumberOfBookingDays()))
+                .toList();
+        return ResponseEntity.ok(roles);
+    }
+
     public record ErrorResponse(String message) {}
+    public record RoleResponse(String name, int maxNumberOfBookingDays) {}
 }
