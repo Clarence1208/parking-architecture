@@ -3,9 +3,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #0f172a;
   padding: 60px;
   min-width: fit-content;
+  background-color: #0f172a;
 }
 
 .parking-board {
@@ -363,7 +363,7 @@
 }
 
 .date-arrow:hover:not(:disabled) {
-  background-color: #1e293b;
+  background-color: transparent;
   border-color: #3b82f6;
   color: #3b82f6;
   transform: scale(1.05);
@@ -395,6 +395,7 @@
 
 .date-text {
   color: #f8fafc;
+  background-color: transparent;
   font-size: 1.25rem;
   font-weight: 600;
   text-transform: capitalize;
@@ -403,6 +404,7 @@
 
 .date-calendar-icon {
   color: #94a3b8;
+  background-color: red;
   cursor: pointer;
   display: flex;
   align-items: center;
