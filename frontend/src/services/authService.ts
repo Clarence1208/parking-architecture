@@ -1,15 +1,5 @@
 import { apiClient } from '../shared/api/apiClient';
-
-export interface AuthResponse {
-  token: string;
-  email: string;
-  role: string;
-}
-
-export interface RoleResponse {
-  name: string;
-  maxNumberOfBookingDays: number;
-}
+import type { AuthResponse, RoleResponse } from './interfaces/authInterface';
 
 export const authService = {
   login: (data: any): Promise<AuthResponse> => apiClient.post('/auth/login', data),

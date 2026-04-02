@@ -1,11 +1,6 @@
 import { apiClient } from '../shared/api/apiClient';
-import type { ParkingReservationRequest, ParkingSpotResponse, UserBookingResponse } from '../types/api-model';
+import type { ParkingReservationRequest, ParkingSpotResponse, RemainingDaysResponse, UserBookingResponse} from './interfaces/bookingInterface';
 
-export interface RemainingDaysResponse {
-  remainingDays: number;
-  maxDays: number;
-  role: string;
-}
 
 export const bookingService = {
   /**

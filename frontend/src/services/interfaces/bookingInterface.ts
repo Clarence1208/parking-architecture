@@ -6,11 +6,17 @@ export interface ParkingReservationRequest {
 }
 
 export interface ParkingSpotResponse {
-    bookingId?: number;
+  bookingId?: number;
   spotId: string; 
   occupied: boolean;
   reservedBy?: string;
   date?: string;
+}
+
+export interface RemainingDaysResponse {
+  remainingDays: number;
+  maxDays: number;
+  role: string;
 }
 
 export interface UserBookingResponse {

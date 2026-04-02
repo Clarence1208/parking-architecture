@@ -8,7 +8,7 @@ src/
 │
 ├── features/               
 │   ├── booking/           
-│   ├── dashboard/          
+│   ├── parking/          
 │   └── auth/               
 │
 ├── services/               
@@ -17,11 +17,9 @@ src/
 │   └── userService.ts      
 │
 ├── store/                  
-│   ├── useAuthStore.ts     
-│   ├── useBookingStore.ts  
-│   └── useUIStore.ts       
+│   └── useContext.ts       
 │
-├── types/                  
+├── interfaces/                  
 │   ├── api-models.ts       
 │   └── index.ts            
 │

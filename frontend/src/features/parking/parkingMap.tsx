@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { bookingService } from '../../services/bookingService';
 import { ReservationModal } from './reservationModal';
 import { useAuth } from '../../store/AuthContext';
-import type { ParkingSpotResponse } from '../../types/api-model';
+import type { ParkingSpotResponse } from '../../services/interfaces/bookingInterface';
 import './parkingMap.css';
 
 import RedCar from '../../assets/cars/purple-car.png';
