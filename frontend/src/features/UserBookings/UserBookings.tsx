@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { bookingService } from '../../services/booking/bookingService.tsx';
-import type { UserBookingResponse } from '../../types/api-model';
-import './UserBookings.css'; 
+import './UserBookings.css';
+import type {UserBookingResponse} from "../../services/booking/interfaces/bookingInterface.ts";
 
 export default function UserBookings() {
   const [bookings, setBookings] = useState<UserBookingResponse[]>([]);
@@ -25,6 +25,22 @@ export default function UserBookings() {
     fetchBookings();
   }, []);
 
+  const handleCancel = async (bookingId: number) => {
+    const confirmCancel = window.confirm("Voulez-vous vraiment annuler cette réservation ?");
+
+    if (confirmCancel) {
+      try {
+        await bookingService.cancelReservation(bookingId);
+
+        setBookings(prev => prev.filter(b => b.id !== bookingId));
+
+        alert("Réservation annulée !");
+      } catch (err) {
+        console.error("Erreur lors de l'annulation:", err);
+        alert("Une erreur est survenue lors de l'annulation.");
+      }
+    }
+  };
   if (loading) return <div className="p-8">Chargement de vos réservations...</div>;
   if (error) return <div className="p-8 text-red-500">{error}</div>;
 
@@ -58,7 +74,7 @@ export default function UserBookings() {
                   <td>
                     <button 
                       className="btn-cancel"
-                      onClick={() => {/* TO DO : annulation depuis la page my-bookings*/}}
+                      onClick={() => { void handleCancel(booking.id)}}
                     >
                       Annuler
                     </button>
