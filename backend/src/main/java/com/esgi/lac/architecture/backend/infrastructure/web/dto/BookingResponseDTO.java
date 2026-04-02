@@ -7,5 +7,6 @@ public record BookingResponseDTO(
         String spotId,
         boolean occupied,
         String reservedBy,
-        LocalDate date
+        LocalDate date,
+        boolean checkedIn
 ) {}

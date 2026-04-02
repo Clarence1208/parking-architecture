@@ -63,7 +63,8 @@ public class BookingController {
                         spot.spotId(),
                         spot.occupied(),
                         spot.reservedBy(),
-                        spot.date()
+                        spot.date(),
+                        spot.checkedIn()
                 ))
                 .toList();
 

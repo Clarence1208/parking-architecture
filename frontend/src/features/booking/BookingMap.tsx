@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { bookingService } from '../../services/booking/bookingService.tsx';
 import { BookingForm } from './BookingForm.tsx';
+import QRScannerModal from './QRScannerModal.tsx';
 import { useAuth } from '../../store/AuthContext';
 import type { ParkingSpotResponse } from '../../services/booking/interfaces/bookingInterface.ts';
 import './BookingMap.css';
+import './QRScannerModal.css';
 
 import RedCar from '../../assets/cars/purple-car.png';
 import BlueCar from '../../assets/cars/blue-car.png';
@@ -168,6 +170,7 @@ export const BookingMap = () => {
   const [animatingSpotId, setAnimatingSpotId] = useState<string | null>(null);
   const [animationStyle, setAnimationStyle] = useState<string>('');
   const [showModal, setShowModal] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   const adjustDate = (days: number) => {
     const d = new Date(selectedDate);
@@ -188,6 +191,11 @@ export const BookingMap = () => {
   };
 
   const hasReservationToday = spots.some(s => s.occupied && s.reservedBy === user?.email);
+
+  const isToday = selectedDate === getTodayString();
+  const myTodaySpot = spots.find(s => s.occupied && s.reservedBy === user?.email);
+  const canCheckIn = isToday && !!myTodaySpot && !myTodaySpot.checkedIn;
+  const alreadyCheckedIn = isToday && !!myTodaySpot && !!myTodaySpot.checkedIn;
 
   const handleSpotClick = (id: string, isOccupied: boolean) => {
     if (isOccupied) {
@@ -465,6 +473,34 @@ const renderRow = (letter: string) => (
           startDate={selectedDate}
           onClose={() => setShowModal(false)} 
           onConfirm={handleConfirm}
+        />
+      )}
+
+      {canCheckIn && !selectedId && (
+        <div className="action-bar checkin-bar" style={{ display: 'flex', zIndex: 1000 }}>
+          <p>Place <strong>{myTodaySpot?.spotId}</strong> — en attente de check-in</p>
+          <button className="btn-checkin" onClick={() => setShowScanner(true)}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="6" height="6" rx="1" />
+              <rect x="16" y="2" width="6" height="6" rx="1" />
+              <rect x="2" y="16" width="6" height="6" rx="1" />
+              <path d="M16 16h2v2h-2zM20 16h2v2h-2zM16 20h2v2h-2zM20 20h2v2h-2z" />
+            </svg>
+            Scanner le QR code
+          </button>
+        </div>
+      )}
+
+      {alreadyCheckedIn && !selectedId && (
+        <div className="action-bar checkedin-bar" style={{ display: 'flex', zIndex: 1000 }}>
+          <p>&#x2705; Place <strong>{myTodaySpot?.spotId}</strong> — check-in effectué</p>
+        </div>
+      )}
+
+      {showScanner && (
+        <QRScannerModal
+          onClose={() => setShowScanner(false)}
+          onCheckInSuccess={refreshParkingStatus}
         />
       )}
     </div>

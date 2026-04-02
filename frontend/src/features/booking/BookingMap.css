@@ -277,6 +277,44 @@
   transform: scale(0.98);
 }
 
+/* Check-in bar */
+.checkin-bar {
+  border-color: #8b5cf6;
+}
+
+.btn-checkin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-checkin:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+}
+
+.btn-checkin:active {
+  transform: scale(0.98);
+}
+
+/* Checked-in confirmation bar */
+.checkedin-bar {
+  border-color: #22c55e;
+  background-color: rgba(21, 45, 30, 0.85);
+}
+
 /* Animation de la barre qui monte du bas */
 @keyframes slideUp {
   from { 

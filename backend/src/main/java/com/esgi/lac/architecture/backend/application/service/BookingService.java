@@ -81,7 +81,8 @@ public class BookingService implements BookingUseCase {
                     b.spotId(),
                     true,
                     b.email(),
-                    date
+                    date,
+                    b.checkedIn()
             ))
             .toList();
     }

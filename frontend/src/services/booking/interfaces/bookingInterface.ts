@@ -11,6 +11,7 @@ export interface ParkingSpotResponse {
   occupied: boolean;
   reservedBy?: string;
   date?: string;
+  checkedIn?: boolean;
 }
 
 export interface RemainingDaysResponse {
