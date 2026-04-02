@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
 import "./layout.css"
-import Sidebar from "../ui/SideBar";
-import { useAuth } from "../../store/AuthContext";
-import { AuthPage } from "../../features/auth/AuthPage";
+import Sidebar from "../ui/SideBar.tsx";
+import { useAuth } from "../../../store/AuthContext.tsx";
+import { AuthPage } from "../../auth/AuthPage.tsx";
 
 export default function Layout() {
   const { isAuthenticated } = useAuth();

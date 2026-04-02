@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { bookingService } from '../../services/bookingService';
+import { bookingService } from '../../services/booking/bookingService.tsx';
 import type { UserBookingResponse } from '../../types/api-model';
 import './UserBookings.css'; 
 

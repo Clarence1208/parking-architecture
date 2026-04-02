@@ -1,5 +1,5 @@
-import { apiClient } from '../shared/api/apiClient';
-import type { ParkingReservationRequest, ParkingSpotResponse, RemainingDaysResponse, UserBookingResponse} from './interfaces/bookingInterface';
+import { apiClient } from '../api/apiClient.ts';
+import type { ParkingReservationRequest, ParkingSpotResponse, RemainingDaysResponse, UserBookingResponse} from './interfaces/bookingInterface.ts';
 
 
 export const bookingService = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../store/AuthContext';
-import { authService } from '../../services/authService';
-import type { RoleResponse } from '../../services/interfaces/authInterface';
+import { authService } from '../../services/auth/authService.ts';
+import type { RoleResponse } from '../../services/auth/interfaces/authInterface.ts';
 import './AuthPage.css';
 
 export const AuthPage: React.FC = () => {

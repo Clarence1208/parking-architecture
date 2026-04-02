@@ -1,4 +1,4 @@
-import { apiClient } from '../shared/api/apiClient.ts';
+import { apiClient } from './api/apiClient.ts';
 
 export const helloService = {
   sayHello: () => apiClient.get<string>('/hello'),

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { helloService } from '../../services/helloService';
-import { Button } from '../../shared/ui/Button';
+import { Button } from '../shared/ui/Button';
 
 export const HelloButton = () => {
   const [message, setMessage] = useState<string>('');

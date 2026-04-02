@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { bookingService } from '../../services/bookingService';
+import { bookingService } from '../../services/booking/bookingService.tsx';
 import { BookingForm } from './BookingForm.tsx';
 import { useAuth } from '../../store/AuthContext';
-import type { ParkingSpotResponse } from '../../services/interfaces/bookingInterface';
+import type { ParkingSpotResponse } from '../../services/booking/interfaces/bookingInterface.ts';
 import './BookingMap.css';
 
 import RedCar from '../../assets/cars/purple-car.png';

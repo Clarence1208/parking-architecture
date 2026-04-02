@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
-import { useAuth } from "../../store/AuthContext";
+import { useAuth } from "../../../store/AuthContext.tsx";
 
 interface NavItem {
   to: string;
