@@ -1,4 +1,4 @@
-package com.esgi.lac.architecture.backend.application;
+package com.esgi.lac.architecture.backend.application.service;
 
 import com.esgi.lac.architecture.backend.application.repository.GreetingQueuePort;
 import com.esgi.lac.architecture.backend.application.repository.GreetingReadPort;

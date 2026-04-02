@@ -2,6 +2,7 @@ package com.esgi.lac.architecture.backend.application;
 
 import com.esgi.lac.architecture.backend.application.repository.GreetingQueuePort;
 import com.esgi.lac.architecture.backend.application.repository.GreetingReadPort;
+import com.esgi.lac.architecture.backend.application.service.HelloService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

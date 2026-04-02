@@ -1,5 +1,6 @@
 package com.esgi.lac.architecture.backend.application;
 
+import com.esgi.lac.architecture.backend.application.service.BookingService;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import com.esgi.lac.architecture.backend.application.repository.BookingRepository;

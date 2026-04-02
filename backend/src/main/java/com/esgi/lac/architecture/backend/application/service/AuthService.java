@@ -1,4 +1,4 @@
-package com.esgi.lac.architecture.backend.application;
+package com.esgi.lac.architecture.backend.application.service;
 
 import com.esgi.lac.architecture.backend.application.repository.PasswordEncoderPort;
 import com.esgi.lac.architecture.backend.application.repository.TokenProvider;
@@ -9,8 +9,6 @@ import com.esgi.lac.architecture.backend.domain.model.User;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
