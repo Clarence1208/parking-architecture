@@ -17,4 +17,5 @@ public interface BookingRepository {
     List<Booking> findAllByUserEmail(String email);
     Optional<Booking> findByEmailAndSpotIdForDate(String email, String spotId, LocalDate date);
     void checkIn(Long bookingId);
+    int resetCheckedInForMultiDayBookings(LocalDate today);
 }

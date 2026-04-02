@@ -91,6 +91,11 @@ public class BookingRepositoryAdapter implements BookingRepository {
     }
 
     @Override
+    public int resetCheckedInForMultiDayBookings(LocalDate today) {
+        return jpaBookingRepository.resetCheckedInForMultiDayBookings(today);
+    }
+
+    @Override
     public List<Booking> findAllByUserEmail(String email) {
         return jpaBookingRepository.findAllByEmail(email).stream()
                 .map(this::toDomain)
