@@ -12,3 +12,10 @@ export interface ParkingSpotResponse {
   reservedBy?: string;
   date?: string;
 }
+
+export interface UserBookingResponse {
+  id: number;
+  spotId: string;
+  startDate: string;
+  endDate: string;
+}

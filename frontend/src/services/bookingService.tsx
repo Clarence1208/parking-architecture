@@ -1,5 +1,5 @@
 import { apiClient } from '../shared/api/apiClient';
-import type { ParkingReservationRequest, ParkingSpotResponse } from '../types/api-model';
+import type { ParkingReservationRequest, ParkingSpotResponse, UserBookingResponse } from '../types/api-model';
 
 export interface RemainingDaysResponse {
   remainingDays: number;
@@ -34,5 +34,9 @@ export const bookingService = {
 
     async cancelReservation(bookingId: number): Promise<void> {
         return apiClient.delete(`/booking/${bookingId}`);
-    }
+    },
+
+    async getMyBookings(): Promise<UserBookingResponse[]> {
+        return apiClient.get<UserBookingResponse[]>('/booking/my-bookings');
+    },
 };
