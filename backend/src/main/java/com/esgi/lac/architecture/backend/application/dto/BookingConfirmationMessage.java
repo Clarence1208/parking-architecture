@@ -1,6 +1,7 @@
 package com.esgi.lac.architecture.backend.application.dto;
 
 import com.esgi.lac.architecture.backend.domain.model.Booking;
+
 import java.time.LocalDate;
 
 public class BookingConfirmationMessage {
@@ -15,6 +16,7 @@ public class BookingConfirmationMessage {
     private LocalDate startDate;
     private LocalDate endDate;
 
+
     private BookingConfirmationMessage(
             Long bookingId,
             String recipientEmail,
@@ -27,6 +29,29 @@ public class BookingConfirmationMessage {
         this.parkingSpotId = parkingSpotId;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    // Needed by the deserialization lib Jackson
+    public BookingConfirmationMessage() {}
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public String getRecipientEmail() {
+        return recipientEmail;
+    }
+
+    public String getParkingSpotId() {
+        return parkingSpotId;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
     public static BookingConfirmationMessage fromBooking(Booking booking) {
