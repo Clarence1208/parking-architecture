@@ -2,15 +2,17 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App.tsx";
 import Layout from "../features/shared/layout/layout.tsx";
 import UserBookings from "../features/UserBookings/UserBookings.tsx";
+import Dashboard from "../features/dashboard/Dashboard.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
      element: <Layout />,
     children: [
-       { index: true, element: <App />},
-       { path: "my-bookings", element: <UserBookings />},
-    
+        { index: true, element: <App />},
+        { path: "my-bookings", element: <UserBookings />},
+        { path: "dashboard", element: <Dashboard /> },
+
     ],
   },
   {

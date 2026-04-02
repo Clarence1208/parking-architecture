@@ -1,0 +1,76 @@
+.dashboard-container {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.dashboard-header h1 {
+    color: white;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.subtitle {
+    color: #94a3b8;
+    margin-top: 0.25rem;
+}
+
+/* Grille des petites cartes du haut */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 colonnes égales */
+    gap: 1.5rem;
+}
+
+/* Grille principale pour les graphiques */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Le graphique principal prend 2/3, le donut 1/3 */
+    gap: 1.5rem;
+    min-height: 400px;
+}
+
+/* Placeholders temporaires pour voir la structure */
+.placeholder-card, .placeholder-chart, .placeholder-table {
+    background: #1e293b;
+    border: 1px dashed #334155;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    min-height: 120px;
+}
+
+.placeholder-chart {
+    height: 100%;
+    min-height: 350px;
+}
+
+.btn-refresh {
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-refresh:hover {
+    opacity: 0.9;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
