@@ -333,9 +333,9 @@ const renderRow = (letter: string) => (
               {isOccupied ? (
                 <div className="car-container">
                   <img src={isMyReservation ? BlueCar : RedCar} alt="Voiture" className="car-image" />
+                  {isMyReservation && <span className="spot-badge">{id}</span>}
                   <div className="driver-name">
                     <span>{isMyReservation ? "Ma place" : spotData?.reservedBy}</span>
-                    {/* Le bouton est rendu mais caché par le CSS (opacity: 0) */}
                     {canCancel && spotData?.bookingId && (
                       <button 
                         className="btn-cancel-hover" 
@@ -347,9 +347,9 @@ const renderRow = (letter: string) => (
                   </div>
                 </div>
               ) : isMine ? (
-                /* Affichage uniquement si la place est LIBRE et sélectionnée */
                 <div className="car-container">
                   <img src={BlueCar} alt="Sélectionné" className="car-image" />
+                  <span className="spot-badge">{id}</span>
                 </div>
               ) : null}
             </div>
