@@ -24,4 +24,17 @@ export interface UserBookingResponse {
   spotId: string;
   startDate: string;
   endDate: string;
+  checkedIn: boolean;
+}
+
+export interface CheckInRequest {
+  spotId: string;
+}
+
+export interface CheckInResponse {
+  bookingId: number;
+  spotId: string;
+  startDate: string;
+  endDate: string;
+  checkedIn: boolean;
 }

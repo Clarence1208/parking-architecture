@@ -1,0 +1,132 @@
+.qr-page {
+  padding: 2rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.qr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.qr-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.qr-header p {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 520px;
+}
+
+.qr-print-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+
+.qr-print-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+}
+
+/* Grid */
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.qr-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1.25rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  transition: border-color 0.2s;
+}
+
+.qr-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.qr-card__code {
+  padding: 0.5rem;
+}
+
+.qr-card__label {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: 0.05em;
+}
+
+.qr-card__hint {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .qr-page {
+    padding: 0;
+    max-width: none;
+  }
+
+  .qr-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+
+  .qr-card {
+    background: white;
+    border: 2px solid #000;
+    border-radius: 8px;
+    padding: 0.75rem;
+    break-inside: avoid;
+  }
+
+  .qr-card__code svg {
+    color: #000 !important;
+  }
+
+  .qr-card__label {
+    color: #000;
+    font-size: 1.1rem;
+  }
+
+  .qr-card__hint {
+    color: #555;
+  }
+}

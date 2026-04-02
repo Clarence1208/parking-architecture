@@ -1,5 +1,5 @@
 import { apiClient } from '../api/apiClient.ts';
-import type { ParkingReservationRequest, ParkingSpotResponse, RemainingDaysResponse, UserBookingResponse} from './interfaces/bookingInterface.ts';
+import type { ParkingReservationRequest, ParkingSpotResponse, RemainingDaysResponse, UserBookingResponse, CheckInResponse} from './interfaces/bookingInterface.ts';
 
 
 export const bookingService = {
@@ -33,5 +33,9 @@ export const bookingService = {
 
     async getMyBookings(): Promise<UserBookingResponse[]> {
         return apiClient.get<UserBookingResponse[]>('/booking/my-bookings');
+    },
+
+    async checkIn(spotId: string): Promise<CheckInResponse> {
+        return apiClient.post<CheckInResponse>('/booking/check-in', { spotId });
     },
 };

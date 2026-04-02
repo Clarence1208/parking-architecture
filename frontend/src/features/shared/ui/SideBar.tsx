@@ -6,6 +6,7 @@ interface NavItem {
   to: string;
   label: string;
   icon: React.ReactNode;
+  requiredRole?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -31,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    to: "/dashboard", // L'URL de ta nouvelle page
+    to: "/dashboard",
     label: "Dashboard",
     icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -40,6 +41,22 @@ const NAV_ITEMS: NavItem[] = [
           <rect x="14" y="14" width="7" height="7" rx="1" />
           <rect x="3" y="14" width="7" height="7" rx="1" />
         </svg>
+    ),
+  },
+  {
+    to: "/qr-codes",
+    label: "QR Codes",
+    requiredRole: "SECRETARY",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="6" height="6" rx="1" />
+        <rect x="16" y="2" width="6" height="6" rx="1" />
+        <rect x="2" y="16" width="6" height="6" rx="1" />
+        <path d="M16 16h2v2h-2zM20 16h2v2h-2zM16 20h2v2h-2zM20 20h2v2h-2z" />
+        <rect x="4" y="4" width="2" height="2" fill="currentColor" />
+        <rect x="18" y="4" width="2" height="2" fill="currentColor" />
+        <rect x="4" y="18" width="2" height="2" fill="currentColor" />
+      </svg>
     ),
   },
 ];
@@ -69,7 +86,9 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="sidebar__nav">
-        {NAV_ITEMS.map((item) => (
+        {NAV_ITEMS
+          .filter(item => !item.requiredRole || item.requiredRole === user?.role)
+          .map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
