@@ -15,4 +15,6 @@ public interface BookingRepository {
     void deleteById(Long id);
     Optional<Booking> findById(Long id);
     List<Booking> findAllByUserEmail(String email);
+    Optional<Booking> findByEmailAndSpotIdForDate(String email, String spotId, LocalDate date);
+    void checkIn(Long bookingId);
 }

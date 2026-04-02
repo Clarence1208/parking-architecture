@@ -2,11 +2,13 @@ package com.esgi.lac.architecture.backend.infrastructure.persistence;
 
 import com.esgi.lac.architecture.backend.infrastructure.persistence.entity.BookingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JpaBookingRepository extends JpaRepository<BookingEntity, Long> {
@@ -35,4 +37,15 @@ public interface JpaBookingRepository extends JpaRepository<BookingEntity, Long>
 
     @Query("SELECT b FROM BookingEntity b WHERE b.email = :email ORDER BY b.startDate ASC")
     List<BookingEntity> findAllByEmail(@Param("email") String email);
+
+    @Query("SELECT b FROM BookingEntity b " +
+           "WHERE b.email = :email AND b.spotId = :spotId " +
+           "AND b.startDate <= :date AND b.endDate >= :date")
+    Optional<BookingEntity> findByEmailAndSpotIdForDate(@Param("email") String email,
+                                                        @Param("spotId") String spotId,
+                                                        @Param("date") LocalDate date);
+
+    @Modifying
+    @Query("UPDATE BookingEntity b SET b.checkedIn = true WHERE b.id = :id")
+    void checkIn(@Param("id") Long id);
 }

@@ -19,5 +19,6 @@ public class BookingEntity {
     private String role;
     private LocalDate startDate;
     private LocalDate endDate;
+    private boolean checkedIn;
 
 }

@@ -117,4 +117,31 @@ public class BookingService implements BookingUseCase {
         return repository.findAllByUserEmail(email);
     }
 
+    @Override
+    @Transactional
+    public Booking checkIn(String spotId, String email) {
+        LocalDate today = LocalDate.now();
+
+        Booking booking = repository.findByEmailAndSpotIdForDate(email, spotId, today)
+                .orElseThrow(() -> new IllegalStateException(
+                        "Aucune réservation trouvée pour la place " + spotId +
+                        " aujourd'hui. Vérifiez que vous êtes à la bonne place."));
+
+        if (booking.checkedIn()) {
+            throw new IllegalStateException("Vous avez déjà effectué le check-in pour cette réservation.");
+        }
+
+        repository.checkIn(booking.id());
+
+        return new Booking(
+                booking.id(),
+                booking.spotId(),
+                booking.email(),
+                booking.role(),
+                booking.startDate(),
+                booking.endDate(),
+                true
+        );
+    }
+
 }

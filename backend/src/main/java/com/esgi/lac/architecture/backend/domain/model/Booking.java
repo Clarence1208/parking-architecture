@@ -8,5 +8,6 @@ public record Booking(
         String email,
         UserRole role,
         LocalDate startDate,
-        LocalDate endDate
+        LocalDate endDate,
+        boolean checkedIn
 ) {}

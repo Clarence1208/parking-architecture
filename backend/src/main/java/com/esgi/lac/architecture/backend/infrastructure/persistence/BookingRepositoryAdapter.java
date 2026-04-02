@@ -57,14 +57,7 @@ public class BookingRepositoryAdapter implements BookingRepository {
     public List<Booking> findAllOverlappingDate(LocalDate date) {
         return jpaBookingRepository.findAllOverlappingDate(date)
             .stream()
-            .map(entity -> new Booking(
-                    entity.getId(),
-                entity.getSpotId(),
-                entity.getEmail(),
-                parseRole(entity.getRole()),
-                entity.getStartDate(),
-                entity.getEndDate()
-            ))
+            .map(this::toDomain)
             .toList();
     }
 
@@ -83,27 +76,36 @@ public class BookingRepositoryAdapter implements BookingRepository {
     @Override
     public Optional<Booking> findById(Long id) {
         return jpaBookingRepository.findById(id)
-                .map(entity -> new Booking(
-                        entity.getId(),
-                        entity.getSpotId(),
-                        entity.getEmail(),
-                        UserRole.valueOf(entity.getRole()),
-                        entity.getStartDate(),
-                        entity.getEndDate()
-                ));
+                .map(this::toDomain);
+    }
+
+    @Override
+    public Optional<Booking> findByEmailAndSpotIdForDate(String email, String spotId, LocalDate date) {
+        return jpaBookingRepository.findByEmailAndSpotIdForDate(email, spotId, date)
+                .map(this::toDomain);
+    }
+
+    @Override
+    public void checkIn(Long bookingId) {
+        jpaBookingRepository.checkIn(bookingId);
     }
 
     @Override
     public List<Booking> findAllByUserEmail(String email) {
         return jpaBookingRepository.findAllByEmail(email).stream()
-                .map(entity -> new Booking(
-                        entity.getId(), // Ton Long id
-                        entity.getSpotId(),
-                        entity.getEmail(),
-                        UserRole.valueOf(entity.getRole()),
-                        entity.getStartDate(),
-                        entity.getEndDate()
-                ))
+                .map(this::toDomain)
                 .toList();
+    }
+
+    private Booking toDomain(BookingEntity entity) {
+        return new Booking(
+                entity.getId(),
+                entity.getSpotId(),
+                entity.getEmail(),
+                parseRole(entity.getRole()),
+                entity.getStartDate(),
+                entity.getEndDate(),
+                entity.isCheckedIn()
+        );
     }
 }

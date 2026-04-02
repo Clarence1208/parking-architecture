@@ -5,6 +5,8 @@ import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import com.esgi.lac.architecture.backend.application.usecase.BookingUseCase;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingRequestDTO;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingResponseDTO;
+import com.esgi.lac.architecture.backend.infrastructure.web.dto.CheckInRequestDTO;
+import com.esgi.lac.architecture.backend.infrastructure.web.dto.CheckInResponseDTO;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.UserBookingResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +40,8 @@ public class BookingController {
                     email,
                     UserRole.valueOf(roleString),
                     LocalDate.parse(dto.startDate()),
-                    LocalDate.parse(dto.endDate())
+                    LocalDate.parse(dto.endDate()),
+                    false
             );
 
             bookingUseCase.reserveSpot(booking);
@@ -96,6 +99,26 @@ public class BookingController {
         }
     }
 
+    @PostMapping("/check-in")
+    public ResponseEntity<?> checkIn(@RequestBody CheckInRequestDTO dto, Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            Booking confirmed = bookingUseCase.checkIn(dto.spotId(), email);
+
+            CheckInResponseDTO response = new CheckInResponseDTO(
+                    confirmed.id(),
+                    confirmed.spotId(),
+                    confirmed.startDate(),
+                    confirmed.endDate(),
+                    confirmed.checkedIn()
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+        }
+    }
+
     @GetMapping("/my-bookings")
     public ResponseEntity<List<UserBookingResponseDTO>> getMyBookings(Authentication authentication) {
 
@@ -104,10 +127,11 @@ public class BookingController {
         List<UserBookingResponseDTO> response = bookingUseCase.getUserBookings(email)
                 .stream()
                 .map(b -> new UserBookingResponseDTO(
-                        b.id(),          // Long id
-                        b.spotId(),      // String spotId
-                        b.startDate(),   // LocalDate startDate
-                        b.endDate()      // LocalDate endDate
+                        b.id(),
+                        b.spotId(),
+                        b.startDate(),
+                        b.endDate(),
+                        b.checkedIn()
                 ))
                 .toList();
 
