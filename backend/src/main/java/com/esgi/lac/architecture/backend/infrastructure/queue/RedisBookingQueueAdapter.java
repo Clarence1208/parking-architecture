@@ -1,4 +1,4 @@
-package com.esgi.lac.architecture.backend.infrastructure.persistence;
+package com.esgi.lac.architecture.backend.infrastructure.queue;
 
 import com.esgi.lac.architecture.backend.application.dto.BookingConfirmationMessage;
 import com.esgi.lac.architecture.backend.application.repository.BookingQueuePort;
@@ -16,6 +16,7 @@ public class RedisBookingQueueAdapter implements BookingQueuePort {
 
     @Override
     public void publish(BookingConfirmationMessage message) {
+        System.out.println(QUEUE_KEY);
         redisTemplate.opsForList().rightPush(QUEUE_KEY, message);
     }
 }

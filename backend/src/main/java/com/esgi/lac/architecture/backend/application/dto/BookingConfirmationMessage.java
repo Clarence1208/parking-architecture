@@ -1,7 +1,7 @@
 package com.esgi.lac.architecture.backend.application.dto;
 
+import com.esgi.lac.architecture.backend.domain.model.Booking;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class BookingConfirmationMessage {
 
@@ -12,9 +12,30 @@ public class BookingConfirmationMessage {
 
     // What spot was booked
     private String parkingSpotId;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    public BookingConfirmationMessage(Long bookingId, String recipientEmail, String parkingSpotId, LocalDate startDate, LocalDate endDate) {
+    private BookingConfirmationMessage(
+            Long bookingId,
+            String recipientEmail,
+            String parkingSpotId,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        this.bookingId = bookingId;
+        this.recipientEmail = recipientEmail;
+        this.parkingSpotId = parkingSpotId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public static BookingConfirmationMessage fromBooking(Booking booking) {
+        return new BookingConfirmationMessage(
+                booking.id(),
+                booking.email(),
+                booking.spotId(),
+                booking.startDate(),
+                booking.endDate()
+        );
     }
 }

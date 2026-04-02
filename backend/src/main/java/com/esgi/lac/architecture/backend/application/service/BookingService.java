@@ -66,16 +66,8 @@ public class BookingService implements BookingUseCase {
         repository.save(booking);
 
         // Envoi d'un message dans la queue
-        BookingConfirmationMessage message = new BookingConfirmationMessage(
-                booking.id(),
-                booking.email(),
-                booking.spotId(),
-                booking.startDate(),
-                booking.endDate()
-        );
-
+        BookingConfirmationMessage message = BookingConfirmationMessage.fromBooking(booking);
         bookingPublisher.publish(message);
-
     }
 
     @Override
