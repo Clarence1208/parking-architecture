@@ -1,5 +1,5 @@
 import './App.css';
-import { ParkingMap } from './features/parking/parkingMap';
+import { BookingMap } from './features/booking/BookingMap.tsx';
 
 function App() {
   return (
@@ -8,7 +8,7 @@ function App() {
         <h1>PARK<span className="brand-highlight">OFFICE</span></h1>
       </header>
       <main className="main-content">
-         <ParkingMap />
+         <BookingMap />
       </main>
     </div>
   );

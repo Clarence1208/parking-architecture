@@ -11,7 +11,7 @@
   justify-content: center;
   align-items: center;
   z-index: 9999; /* Au-dessus de TOUT, même de la barre flottante */
-  backdrop-filter: blur(4px); /* Effet de flou sur le parking derrière */
+  backdrop-filter: blur(4px); /* Effet de flou sur le booking derrière */
 }
 
 /* La boîte blanche/sombre au centre */

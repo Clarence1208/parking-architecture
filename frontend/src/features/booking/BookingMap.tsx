@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { bookingService } from '../../services/bookingService';
-import { ReservationModal } from './reservationModal';
+import { BookingForm } from './BookingForm.tsx';
 import { useAuth } from '../../store/AuthContext';
 import type { ParkingSpotResponse } from '../../services/interfaces/bookingInterface';
-import './parkingMap.css';
+import './BookingMap.css';
 
 import RedCar from '../../assets/cars/purple-car.png';
 import BlueCar from '../../assets/cars/blue-car.png';
@@ -160,7 +160,7 @@ const generateKeyframes = (waypoints: {x: number, y: number, rotate: number}[]) 
   return { rules, totalDist };
 };
 
-export const ParkingMap = () => {
+export const BookingMap = () => {
   const { user } = useAuth();
   const [spots, setSpots] = useState<ParkingSpotResponse[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
@@ -269,12 +269,12 @@ export const ParkingMap = () => {
     };
   const refreshParkingStatus = async () => {
     try {
-      // On passe la date au service pour filtrer le parking
+      // On passe la date au service pour filtrer le booking
       const data = await bookingService.getParkingStatus(selectedDate);
       console.log(`Données reçues pour le ${selectedDate} :`, data);
       setSpots(data);
     } catch (error) {
-      console.error("Erreur chargement parking:", error);
+      console.error("Erreur chargement booking:", error);
     }
   };
 
@@ -460,7 +460,7 @@ const renderRow = (letter: string) => (
       )}
 
       {showModal && selectedId && (
-        <ReservationModal 
+        <BookingForm
           spotId={selectedId} 
           startDate={selectedDate}
           onClose={() => setShowModal(false)} 

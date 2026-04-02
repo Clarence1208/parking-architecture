@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../store/AuthContext';
 import { bookingService } from '../../services/bookingService';
-import './ReservationModal.css';
+import './BookingForm.css';
 
 interface Props {
   spotId: string;
@@ -10,7 +10,7 @@ interface Props {
   onConfirm: (endDate: string) => void; 
 }
 
-export const ReservationModal = ({ spotId, startDate, onClose, onConfirm }: Props) => {
+export const BookingForm = ({ spotId, startDate, onClose, onConfirm }: Props) => {
   const { user } = useAuth();
   const [endDate, setEndDate] = useState<string>(startDate);
   const [remainingDays, setRemainingDays] = useState<number>(1);
