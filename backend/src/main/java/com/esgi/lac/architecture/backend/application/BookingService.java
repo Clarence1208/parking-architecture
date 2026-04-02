@@ -103,4 +103,9 @@ public class BookingService implements BookingUseCase {
         }
         repository.deleteById(bookingId);
     }
+
+    @Override
+    public List<Booking> getUserBookings(String email) {
+        return repository.findAllByUserEmail(email);
+    }
 }

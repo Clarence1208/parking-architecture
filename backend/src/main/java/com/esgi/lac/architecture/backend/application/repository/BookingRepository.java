@@ -14,4 +14,5 @@ public interface BookingRepository {
     List<Booking> findAllOverlappingDate(LocalDate date);
     void deleteById(Long id);
     Optional<Booking> findById(Long id);
+    List<Booking> findAllByUserEmail(String email);
 }

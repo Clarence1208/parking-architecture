@@ -5,6 +5,7 @@ import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import com.esgi.lac.architecture.backend.application.usecase.BookingUseCase;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingRequestDTO;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingResponseDTO;
+import com.esgi.lac.architecture.backend.infrastructure.web.dto.UserBookingResponseDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -93,5 +94,23 @@ public class BookingController {
         } catch (IllegalArgumentException | IllegalStateException ex) {
             return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
         }
+    }
+
+    @GetMapping("/my-bookings")
+    public ResponseEntity<List<UserBookingResponseDTO>> getMyBookings(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        List<UserBookingResponseDTO> response = bookingUseCase.getUserBookings(email)
+                .stream()
+                .map(b -> new UserBookingResponseDTO(
+                        b.id(),          // Long id
+                        b.spotId(),      // String spotId
+                        b.startDate(),   // LocalDate startDate
+                        b.endDate()      // LocalDate endDate
+                ))
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 }

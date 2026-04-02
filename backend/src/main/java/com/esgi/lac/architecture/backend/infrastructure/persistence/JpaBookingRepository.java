@@ -32,4 +32,7 @@ public interface JpaBookingRepository extends JpaRepository<BookingEntity, Long>
     // Trouver tous les bookings à venir d'un utilisateur (pour calcul du quota en jours)
     @Query("SELECT b FROM BookingEntity b WHERE b.email = :email AND b.endDate >= :fromDate")
     List<BookingEntity> findUpcomingByUser(@Param("email") String email, @Param("fromDate") LocalDate fromDate);
+
+    @Query("SELECT b FROM BookingEntity b WHERE b.email = :email ORDER BY b.startDate ASC")
+    List<BookingEntity> findAllByEmail(@Param("email") String email);
 }

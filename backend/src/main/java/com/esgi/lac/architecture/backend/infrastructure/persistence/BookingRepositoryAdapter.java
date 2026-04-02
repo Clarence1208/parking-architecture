@@ -92,4 +92,18 @@ public class BookingRepositoryAdapter implements BookingRepository {
                         entity.getEndDate()
                 ));
     }
+
+    @Override
+    public List<Booking> findAllByUserEmail(String email) {
+        return jpaBookingRepository.findAllByEmail(email).stream()
+                .map(entity -> new Booking(
+                        entity.getId(), // Ton Long id
+                        entity.getSpotId(),
+                        entity.getEmail(),
+                        UserRole.valueOf(entity.getRole()),
+                        entity.getStartDate(),
+                        entity.getEndDate()
+                ))
+                .toList();
+    }
 }

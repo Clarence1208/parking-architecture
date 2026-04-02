@@ -13,4 +13,5 @@ public interface BookingUseCase {
     List<BookingSpotStatus> getAllSpots();
     long getRemainingDays(String email, UserRole role);
     void cancelBooking(Long bookingId, String currentUserEmail, UserRole currentUserRole);
+    List<Booking> getUserBookings(String email);
 }
