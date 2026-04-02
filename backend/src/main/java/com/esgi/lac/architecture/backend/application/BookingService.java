@@ -1,5 +1,7 @@
 package com.esgi.lac.architecture.backend.application;
 
+import com.esgi.lac.architecture.backend.application.dto.BookingConfirmationMessage;
+import com.esgi.lac.architecture.backend.application.repository.BookingQueuePort;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
@@ -16,9 +18,11 @@ import java.util.List;
 public class BookingService implements BookingUseCase {
 
     private final BookingRepository repository;
+    private final BookingQueuePort bookingPublisher;
 
-    public BookingService(BookingRepository repository) {
+    public BookingService(BookingRepository repository, BookingQueuePort bookingPublisher) {
         this.repository = repository;
+        this.bookingPublisher = bookingPublisher;
     }
 
     @Override
@@ -60,6 +64,18 @@ public class BookingService implements BookingUseCase {
 
         // Sauvegarde
         repository.save(booking);
+
+        // Envoi d'un message dans la queue
+        BookingConfirmationMessage message = new BookingConfirmationMessage(
+                booking.id(),
+                booking.email(),
+                booking.spotId(),
+                booking.startDate(),
+                booking.endDate()
+        );
+
+        bookingPublisher.publish(message);
+
     }
 
     @Override
@@ -108,4 +124,5 @@ public class BookingService implements BookingUseCase {
     public List<Booking> getUserBookings(String email) {
         return repository.findAllByUserEmail(email);
     }
+
 }
