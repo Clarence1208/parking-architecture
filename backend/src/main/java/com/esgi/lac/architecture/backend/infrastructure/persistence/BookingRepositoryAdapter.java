@@ -96,6 +96,23 @@ public class BookingRepositoryAdapter implements BookingRepository {
     }
 
     @Override
+    public List<Booking> findUncheckedForDate(LocalDate date) {
+        return jpaBookingRepository.findUncheckedForDate(date).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void updateStartDate(Long id, LocalDate newStartDate) {
+        jpaBookingRepository.updateStartDate(id, newStartDate);
+    }
+
+    @Override
+    public void updateEndDate(Long id, LocalDate newEndDate) {
+        jpaBookingRepository.updateEndDate(id, newEndDate);
+    }
+
+    @Override
     public List<Booking> findAllByUserEmail(String email) {
         return jpaBookingRepository.findAllByEmail(email).stream()
                 .map(this::toDomain)

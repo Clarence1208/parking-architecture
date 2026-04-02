@@ -53,4 +53,16 @@ public interface JpaBookingRepository extends JpaRepository<BookingEntity, Long>
     @Query("UPDATE BookingEntity b SET b.checkedIn = false " +
            "WHERE b.checkedIn = true AND b.startDate < :today AND b.endDate >= :today")
     int resetCheckedInForMultiDayBookings(@Param("today") LocalDate today);
+
+    @Query("SELECT b FROM BookingEntity b " +
+           "WHERE b.startDate <= :date AND b.endDate >= :date AND b.checkedIn = false")
+    List<BookingEntity> findUncheckedForDate(@Param("date") LocalDate date);
+
+    @Modifying
+    @Query("UPDATE BookingEntity b SET b.startDate = :newStartDate WHERE b.id = :id")
+    void updateStartDate(@Param("id") Long id, @Param("newStartDate") LocalDate newStartDate);
+
+    @Modifying
+    @Query("UPDATE BookingEntity b SET b.endDate = :newEndDate WHERE b.id = :id")
+    void updateEndDate(@Param("id") Long id, @Param("newEndDate") LocalDate newEndDate);
 }
