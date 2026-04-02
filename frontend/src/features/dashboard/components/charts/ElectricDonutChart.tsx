@@ -1,13 +1,17 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import './Charts.css';
 
-const data = [
-    { name: 'Élec. Occupées', value: 18, color: '#f59e0b' }, // Orange
-    { name: 'Élec. Libres', value: 7, color: '#10b981' },    // Vert
-    { name: 'Classiques', value: 25, color: '#6366f1' },     // Indigo
-];
+// 1. On définit l'interface pour les données que le dashboard va envoyer
+interface ElectricDonutChartProps {
+    data: {
+        name: string;
+        value: number;
+        color: string;
+    }[];
+}
 
-export default function ElectricDonutChart() {
+// 2. On récupère { data } dans les arguments de la fonction
+export default function ElectricDonutChart({ data }: ElectricDonutChartProps) {
     return (
         <div className="chart-card">
             <div className="chart-card__header">
@@ -19,27 +23,35 @@ export default function ElectricDonutChart() {
                 <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                         <Pie
-                            data={data}
+                            data={data} // 3. Utilise maintenant les données dynamiques
                             cx="50%"
                             cy="50%"
-                            innerRadius={60}   // C'est ce qui crée le trou du Donut
+                            innerRadius={60}
                             outerRadius={80}
                             paddingAngle={5}
                             dataKey="value"
                         >
+                            {/* On boucle sur 'data' pour générer les Cellules colorées */}
                             {data.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                             ))}
                         </Pie>
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }}
+                            contentStyle={{
+                                backgroundColor: '#1e293b',
+                                border: '1px solid #334155',
+                                borderRadius: '8px',
+                                color: '#fff'
+                            }}
                             itemStyle={{ color: '#fff' }}
                         />
                         <Legend
                             verticalAlign="bottom"
                             height={36}
                             iconType="circle"
-                            formatter={(value) => <span style={{ color: '#94a3b8', fontSize: '12px' }}>{value}</span>}
+                            formatter={(value) => (
+                                <span style={{ color: '#94a3b8', fontSize: '12px' }}>{value}</span>
+                            )}
                         />
                     </PieChart>
                 </ResponsiveContainer>

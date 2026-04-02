@@ -4,17 +4,17 @@ import {
 } from 'recharts';
 import './Charts.css';
 
-const data = [
-    { day: 'Lun', total: 45, electric: 12 },
-    { day: 'Mar', total: 52, electric: 15 },
-    { day: 'Mer', total: 48, electric: 10 },
-    { day: 'Jeu', total: 61, electric: 22 },
-    { day: 'Ven', total: 55, electric: 18 },
-    { day: 'Sam', total: 32, electric: 8 },
-    { day: 'Dim', total: 25, electric: 5 },
-];
+// 1. On définit l'interface pour accepter les données du service
+interface OccupationAreaChartProps {
+    data: {
+        day: string;
+        total: number;
+        electric: number;
+    }[];
+}
 
-export default function OccupationAreaChart() {
+// 2. On ajoute { data } dans les parenthèses pour recevoir les props
+export default function OccupationAreaChart({ data }: OccupationAreaChartProps) {
     return (
         <div className="chart-card">
             <div className="chart-card__header">
@@ -24,14 +24,13 @@ export default function OccupationAreaChart() {
 
             <div className="chart-card__content">
                 <ResponsiveContainer width="100%" height={300}>
+                    {/* 3. Recharts utilise maintenant le 'data' qui vient des props */}
                     <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                         <defs>
-                            {/* Dégradé pour l'occupation totale (Indigo) */}
                             <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
                                 <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                             </linearGradient>
-                            {/* Dégradé pour l'électrique (Vert) */}
                             <linearGradient id="colorElectric" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
                                 <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
@@ -48,7 +47,7 @@ export default function OccupationAreaChart() {
 
                         <Area
                             type="monotone"
-                            dataKey="total"
+                            dataKey="total" // Doit matcher la clé dans ton adapter
                             stroke="#6366f1"
                             strokeWidth={3}
                             fillOpacity={1}
@@ -56,7 +55,7 @@ export default function OccupationAreaChart() {
                         />
                         <Area
                             type="monotone"
-                            dataKey="electric"
+                            dataKey="electric" // Doit matcher la clé dans ton adapter
                             stroke="#10b981"
                             strokeWidth={3}
                             fillOpacity={1}
