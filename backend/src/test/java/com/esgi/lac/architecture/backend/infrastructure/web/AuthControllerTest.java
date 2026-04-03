@@ -1,5 +1,6 @@
 package com.esgi.lac.architecture.backend.infrastructure.web;
 
+import com.esgi.lac.architecture.backend.application.exception.InvalidCredentialsException;
 import com.esgi.lac.architecture.backend.application.usecase.AuthUseCase;
 import com.esgi.lac.architecture.backend.domain.model.AuthResult;
 import com.esgi.lac.architecture.backend.domain.model.User;
@@ -35,7 +36,9 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authUseCase)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authUseCase))
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Nested
@@ -95,7 +98,7 @@ class AuthControllerTest {
         @DisplayName("returns 401 on invalid credentials")
         void returns401OnInvalidCredentials() throws Exception {
             when(authUseCase.login(anyString(), anyString()))
-                    .thenThrow(new RuntimeException("Invalid credentials"));
+                    .thenThrow(new InvalidCredentialsException("Invalid credentials"));
 
             mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)

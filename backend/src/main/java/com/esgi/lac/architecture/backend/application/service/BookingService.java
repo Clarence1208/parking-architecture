@@ -1,7 +1,14 @@
 package com.esgi.lac.architecture.backend.application.service;
 
 import com.esgi.lac.architecture.backend.application.dto.BookingConfirmationMessage;
+import com.esgi.lac.architecture.backend.application.exception.BookingNotFoundException;
+import com.esgi.lac.architecture.backend.application.exception.CheckInNotFoundException;
+import com.esgi.lac.architecture.backend.application.exception.UnauthorizedCancellationException;
 import com.esgi.lac.architecture.backend.application.repository.BookingQueuePort;
+import com.esgi.lac.architecture.backend.domain.exception.AlreadyCheckedInException;
+import com.esgi.lac.architecture.backend.domain.exception.BookingOverlapException;
+import com.esgi.lac.architecture.backend.domain.exception.BookingQuotaExceededException;
+import com.esgi.lac.architecture.backend.domain.exception.InvalidBookingDatesException;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
@@ -28,35 +35,30 @@ public class BookingService implements BookingUseCase {
     @Override
     @Transactional
     public void reserveSpot(Booking booking) {
-        // Validation des dates
         if (booking.startDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("On ne peut pas réserver dans le passé !");
+            throw new InvalidBookingDatesException("On ne peut pas réserver dans le passé !");
         }
         if (booking.endDate().isBefore(booking.startDate())) {
-            throw new IllegalArgumentException("La date de fin ne peut pas être avant la date de début !");
+            throw new InvalidBookingDatesException("La date de fin ne peut pas être avant la date de début !");
         }
 
-        // Vérifier si l'utilisateur a déjà une réservation qui chevauche cet intervalle
         if (repository.existsOverlappingUserBooking(booking.email(), booking.startDate(), booking.endDate())) {
-            throw new IllegalStateException("Vous avez déjà une réservation qui chevauche ces dates !");
+            throw new BookingOverlapException("Vous avez déjà une réservation qui chevauche ces dates !");
         }
 
-        // Vérifier si la place est déjà prise sur cet intervalle
         if (repository.existsOverlappingSpotBooking(booking.spotId(), booking.startDate(), booking.endDate())) {
-            throw new IllegalStateException("Cette place est déjà réservée sur cet intervalle.");
+            throw new BookingOverlapException("Cette place est déjà réservée sur cet intervalle.");
         }
 
-        // Calculer le nombre de jours demandés
         long requestedDays = ChronoUnit.DAYS.between(booking.startDate(), booking.endDate()) + 1;
 
-        // Vérifier le quota (5 ou 30 jours selon le rôle)
         long currentBookedDays = repository.countUpcomingDaysByUser(
             booking.email(),
             LocalDate.now()
         );
         long maxDays = booking.role().getMaxNumberOfBookingDays();
         if (currentBookedDays + requestedDays > maxDays) {
-            throw new IllegalArgumentException(
+            throw new BookingQuotaExceededException(
                 "Quota de " + maxDays + " jours atteint ! Vous avez déjà " + currentBookedDays +
                 " jour(s) réservé(s) et vous demandez " + requestedDays + " jour(s)."
             );
@@ -103,12 +105,12 @@ public class BookingService implements BookingUseCase {
     @Transactional
     public void cancelBooking(Long bookingId, String currentUserEmail, UserRole currentUserRole) {
         Booking booking = repository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Réservation introuvable"));
+                .orElseThrow(() -> new BookingNotFoundException("Réservation introuvable"));
         boolean isOwner = booking.email().equals(currentUserEmail);
         boolean isSecretary = currentUserRole == UserRole.SECRETARY;
 
         if (!isOwner && !isSecretary) {
-            throw new IllegalStateException("Vous n'avez pas les droits pour annuler cette réservation.");
+            throw new UnauthorizedCancellationException("Vous n'avez pas les droits pour annuler cette réservation.");
         }
         repository.deleteById(bookingId);
     }
@@ -124,12 +126,12 @@ public class BookingService implements BookingUseCase {
         LocalDate today = LocalDate.now();
 
         Booking booking = repository.findByEmailAndSpotIdForDate(email, spotId, today)
-                .orElseThrow(() -> new IllegalStateException(
+                .orElseThrow(() -> new CheckInNotFoundException(
                         "Aucune réservation trouvée pour la place " + spotId +
                         " aujourd'hui. Vérifiez que vous êtes à la bonne place."));
 
         if (booking.checkedIn()) {
-            throw new IllegalStateException("Vous avez déjà effectué le check-in pour cette réservation.");
+            throw new AlreadyCheckedInException("Vous avez déjà effectué le check-in pour cette réservation.");
         }
 
         repository.checkIn(booking.id());

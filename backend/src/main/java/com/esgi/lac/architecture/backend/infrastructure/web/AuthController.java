@@ -27,13 +27,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            AuthResult result = authUseCase.login(request.email(), request.password());
-            return ResponseEntity.ok(new AuthResponse(result.token(), result.user().getEmail(), result.user().getRole()));
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(401).body(new ErrorResponse(ex.getMessage()));
-        }
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        AuthResult result = authUseCase.login(request.email(), request.password());
+        return ResponseEntity.ok(new AuthResponse(result.token(), result.user().getEmail(), result.user().getRole()));
     }
 
     @GetMapping("/roles")
@@ -44,6 +40,5 @@ public class AuthController {
         return ResponseEntity.ok(roles);
     }
 
-    public record ErrorResponse(String message) {}
     public record RoleResponse(String name, int maxNumberOfBookingDays) {}
 }

@@ -1,6 +1,11 @@
 package com.esgi.lac.architecture.backend.infrastructure.web;
 
+import com.esgi.lac.architecture.backend.application.exception.BookingNotFoundException;
+import com.esgi.lac.architecture.backend.application.exception.CheckInNotFoundException;
+import com.esgi.lac.architecture.backend.application.exception.UnauthorizedCancellationException;
 import com.esgi.lac.architecture.backend.application.usecase.BookingUseCase;
+import com.esgi.lac.architecture.backend.domain.exception.BookingOverlapException;
+import com.esgi.lac.architecture.backend.domain.exception.BookingQuotaExceededException;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
@@ -39,7 +44,9 @@ class BookingControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new BookingController(bookingUseCase)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new BookingController(bookingUseCase))
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
 
         employeeAuth = new UsernamePasswordAuthenticationToken(
                 "user@test.com", null,
@@ -74,9 +81,9 @@ class BookingControllerTest {
         }
 
         @Test
-        @DisplayName("returns 400 when reservation fails with IllegalArgumentException")
-        void returns400OnIllegalArgument() throws Exception {
-            doThrow(new IllegalArgumentException("Quota exceeded"))
+        @DisplayName("returns 400 when quota is exceeded")
+        void returns400OnQuotaExceeded() throws Exception {
+            doThrow(new BookingQuotaExceededException("Quota exceeded"))
                     .when(bookingUseCase).reserveSpot(any());
 
             String json = """
@@ -92,9 +99,9 @@ class BookingControllerTest {
         }
 
         @Test
-        @DisplayName("returns 400 when reservation fails with IllegalStateException")
-        void returns400OnIllegalState() throws Exception {
-            doThrow(new IllegalStateException("Spot already taken"))
+        @DisplayName("returns 400 when spot overlaps")
+        void returns400OnOverlap() throws Exception {
+            doThrow(new BookingOverlapException("Spot already taken"))
                     .when(bookingUseCase).reserveSpot(any());
 
             String json = """
@@ -172,14 +179,25 @@ class BookingControllerTest {
         }
 
         @Test
-        @DisplayName("returns 400 when cancellation denied")
-        void returns400WhenDenied() throws Exception {
-            doThrow(new IllegalStateException("Not allowed"))
+        @DisplayName("returns 403 when cancellation denied")
+        void returns403WhenDenied() throws Exception {
+            doThrow(new UnauthorizedCancellationException("Not allowed"))
                     .when(bookingUseCase).cancelBooking(anyLong(), anyString(), any());
 
             mockMvc.perform(delete("/api/booking/1").principal(employeeAuth))
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.message").value("Not allowed"));
+        }
+
+        @Test
+        @DisplayName("returns 404 when booking not found")
+        void returns404WhenNotFound() throws Exception {
+            doThrow(new BookingNotFoundException("Booking not found"))
+                    .when(bookingUseCase).cancelBooking(anyLong(), anyString(), any());
+
+            mockMvc.perform(delete("/api/booking/99").principal(employeeAuth))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.message").value("Booking not found"));
         }
     }
 
@@ -206,10 +224,10 @@ class BookingControllerTest {
         }
 
         @Test
-        @DisplayName("returns 400 when check-in fails")
-        void returns400OnFailure() throws Exception {
+        @DisplayName("returns 404 when check-in booking not found")
+        void returns404OnNotFound() throws Exception {
             when(bookingUseCase.checkIn(anyString(), anyString()))
-                    .thenThrow(new IllegalStateException("No reservation found"));
+                    .thenThrow(new CheckInNotFoundException("No reservation found"));
 
             mockMvc.perform(post("/api/booking/check-in")
                             .principal(employeeAuth)
@@ -217,7 +235,7 @@ class BookingControllerTest {
                             .content("""
                                     {"spotId": "Z99"}
                                     """))
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("No reservation found"));
         }
     }

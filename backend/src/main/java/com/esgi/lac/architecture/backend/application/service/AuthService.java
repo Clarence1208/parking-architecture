@@ -1,5 +1,7 @@
 package com.esgi.lac.architecture.backend.application.service;
 
+import com.esgi.lac.architecture.backend.application.exception.DuplicateEmailException;
+import com.esgi.lac.architecture.backend.application.exception.InvalidCredentialsException;
 import com.esgi.lac.architecture.backend.application.repository.PasswordEncoderPort;
 import com.esgi.lac.architecture.backend.application.repository.TokenProvider;
 import com.esgi.lac.architecture.backend.application.repository.UserRepository;
@@ -21,7 +23,7 @@ public class AuthService implements AuthUseCase {
     @Override
     public AuthResult register(String email, String password, UserRole role) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("User with email already exists");
+            throw new DuplicateEmailException("User with email already exists");
         }
 
         User user = User.builder()
@@ -39,10 +41,10 @@ public class AuthService implements AuthUseCase {
     @Override
     public AuthResult login(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         String token = tokenProvider.generateToken(user);

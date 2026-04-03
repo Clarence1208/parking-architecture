@@ -1,5 +1,7 @@
 package com.esgi.lac.architecture.backend.application;
 
+import com.esgi.lac.architecture.backend.application.exception.DuplicateEmailException;
+import com.esgi.lac.architecture.backend.application.exception.InvalidCredentialsException;
 import com.esgi.lac.architecture.backend.application.repository.PasswordEncoderPort;
 import com.esgi.lac.architecture.backend.application.repository.TokenProvider;
 import com.esgi.lac.architecture.backend.application.repository.UserRepository;
@@ -71,7 +73,7 @@ class AuthServiceTest {
             when(userRepository.findByEmail("dup@test.com")).thenReturn(Optional.of(existingUser));
 
             assertThatThrownBy(() -> authService.register("dup@test.com", "pass", UserRole.EMPLOYEE))
-                    .isInstanceOf(RuntimeException.class)
+                    .isInstanceOf(DuplicateEmailException.class)
                     .hasMessageContaining("already exists");
         }
 
@@ -118,7 +120,7 @@ class AuthServiceTest {
             when(userRepository.findByEmail("missing@test.com")).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> authService.login("missing@test.com", "pass"))
-                    .isInstanceOf(RuntimeException.class)
+                    .isInstanceOf(InvalidCredentialsException.class)
                     .hasMessageContaining("Invalid credentials");
         }
 
@@ -133,7 +135,7 @@ class AuthServiceTest {
             when(passwordEncoder.matches("wrongPass", "encoded_pw")).thenReturn(false);
 
             assertThatThrownBy(() -> authService.login("user@test.com", "wrongPass"))
-                    .isInstanceOf(RuntimeException.class)
+                    .isInstanceOf(InvalidCredentialsException.class)
                     .hasMessageContaining("Invalid credentials");
         }
     }

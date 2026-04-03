@@ -1,8 +1,15 @@
 package com.esgi.lac.architecture.backend.application;
 
+import com.esgi.lac.architecture.backend.application.exception.BookingNotFoundException;
+import com.esgi.lac.architecture.backend.application.exception.CheckInNotFoundException;
+import com.esgi.lac.architecture.backend.application.exception.UnauthorizedCancellationException;
 import com.esgi.lac.architecture.backend.application.repository.BookingQueuePort;
 import com.esgi.lac.architecture.backend.application.repository.BookingRepository;
 import com.esgi.lac.architecture.backend.application.service.BookingService;
+import com.esgi.lac.architecture.backend.domain.exception.AlreadyCheckedInException;
+import com.esgi.lac.architecture.backend.domain.exception.BookingOverlapException;
+import com.esgi.lac.architecture.backend.domain.exception.BookingQuotaExceededException;
+import com.esgi.lac.architecture.backend.domain.exception.InvalidBookingDatesException;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
@@ -50,7 +57,7 @@ class BookingServiceTest {
             Booking booking = makeBooking("A01", "user@test.com", UserRole.EMPLOYEE, pastDate, pastDate);
 
             assertThatThrownBy(() -> bookingService.reserveSpot(booking))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(InvalidBookingDatesException.class);
         }
 
         @Test
@@ -61,7 +68,7 @@ class BookingServiceTest {
             Booking booking = makeBooking("A01", "user@test.com", UserRole.EMPLOYEE, start, end);
 
             assertThatThrownBy(() -> bookingService.reserveSpot(booking))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(InvalidBookingDatesException.class);
         }
 
         @Test
@@ -74,7 +81,7 @@ class BookingServiceTest {
             Booking booking = makeBooking("A01", "alan@test.com", UserRole.EMPLOYEE, start, end);
 
             assertThatThrownBy(() -> bookingService.reserveSpot(booking))
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(BookingOverlapException.class);
         }
 
         @Test
@@ -88,7 +95,7 @@ class BookingServiceTest {
             Booking booking = makeBooking("A01", "alan@test.com", UserRole.EMPLOYEE, start, end);
 
             assertThatThrownBy(() -> bookingService.reserveSpot(booking))
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(BookingOverlapException.class);
         }
 
         @Test
@@ -104,7 +111,7 @@ class BookingServiceTest {
             Booking booking = makeBooking("A01", "alan@test.com", UserRole.EMPLOYEE, start, end);
 
             assertThatThrownBy(() -> bookingService.reserveSpot(booking))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(BookingQuotaExceededException.class);
         }
 
         @Test
@@ -120,7 +127,7 @@ class BookingServiceTest {
             Booking booking = makeBooking("A01", "alan@test.com", UserRole.EMPLOYEE, start, end);
 
             assertThatThrownBy(() -> bookingService.reserveSpot(booking))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(BookingQuotaExceededException.class);
         }
 
         @Test
@@ -294,7 +301,7 @@ class BookingServiceTest {
             when(repository.findById(1L)).thenReturn(Optional.of(booking));
 
             assertThatThrownBy(() -> bookingService.cancelBooking(1L, "other@test.com", UserRole.EMPLOYEE))
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(UnauthorizedCancellationException.class);
         }
 
         @Test
@@ -303,7 +310,7 @@ class BookingServiceTest {
             when(repository.findById(99L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> bookingService.cancelBooking(99L, "user@test.com", UserRole.EMPLOYEE))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(BookingNotFoundException.class);
         }
     }
 
@@ -354,7 +361,7 @@ class BookingServiceTest {
                     .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> bookingService.checkIn("A01", "user@test.com"))
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(CheckInNotFoundException.class);
         }
 
         @Test
@@ -367,7 +374,7 @@ class BookingServiceTest {
                     .thenReturn(Optional.of(booking));
 
             assertThatThrownBy(() -> bookingService.checkIn("A01", "user@test.com"))
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(AlreadyCheckedInException.class);
         }
     }
 }

@@ -29,29 +29,24 @@ public class BookingController {
     }
 
     @PostMapping("/reserve")
-    public ResponseEntity<?> reserve(@RequestBody BookingRequestDTO dto, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            String roleString = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
+    public ResponseEntity<Void> reserve(@RequestBody BookingRequestDTO dto, Authentication authentication) {
+        String email = authentication.getName();
+        String roleString = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
-            Booking booking = new Booking(
-                    null,
-                    dto.spotId(),
-                    email,
-                    UserRole.valueOf(roleString),
-                    LocalDate.parse(dto.startDate()),
-                    LocalDate.parse(dto.endDate()),
-                    false
-            );
+        Booking booking = new Booking(
+                null,
+                dto.spotId(),
+                email,
+                UserRole.valueOf(roleString),
+                LocalDate.parse(dto.startDate()),
+                LocalDate.parse(dto.endDate()),
+                false
+        );
 
-            bookingUseCase.reserveSpot(booking);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
-        }
+        bookingUseCase.reserveSpot(booking);
+        return ResponseEntity.ok().build();
     }
 
-    public record ErrorResponse(String message) {}
     @GetMapping("/spots")
     public ResponseEntity<List<BookingResponseDTO>> getSpots(@RequestParam(required = false) String date) {
         LocalDate targetDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
@@ -85,39 +80,31 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> cancel(@PathVariable Long id, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            String roleString = authentication.getAuthorities().iterator().next()
-                    .getAuthority().replace("ROLE_", "");
-            UserRole role = UserRole.valueOf(roleString);
+    public ResponseEntity<Void> cancel(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        String roleString = authentication.getAuthorities().iterator().next()
+                .getAuthority().replace("ROLE_", "");
+        UserRole role = UserRole.valueOf(roleString);
 
-            bookingUseCase.cancelBooking(id, email, role);
+        bookingUseCase.cancelBooking(id, email, role);
 
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
-        }
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/check-in")
-    public ResponseEntity<?> checkIn(@RequestBody CheckInRequestDTO dto, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            Booking confirmed = bookingUseCase.checkIn(dto.spotId(), email);
+    public ResponseEntity<CheckInResponseDTO> checkIn(@RequestBody CheckInRequestDTO dto, Authentication authentication) {
+        String email = authentication.getName();
+        Booking confirmed = bookingUseCase.checkIn(dto.spotId(), email);
 
-            CheckInResponseDTO response = new CheckInResponseDTO(
-                    confirmed.id(),
-                    confirmed.spotId(),
-                    confirmed.startDate(),
-                    confirmed.endDate(),
-                    confirmed.checkedIn()
-            );
+        CheckInResponseDTO response = new CheckInResponseDTO(
+                confirmed.id(),
+                confirmed.spotId(),
+                confirmed.startDate(),
+                confirmed.endDate(),
+                confirmed.checkedIn()
+        );
 
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
-        }
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/my-bookings")
