@@ -34,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     to: "/dashboard",
     label: "Dashboard",
+      requiredRole: "MANAGER",
     icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1" />

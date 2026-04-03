@@ -24,14 +24,13 @@ public class DashboardController {
     public ResponseEntity<DashboardResponseDTO> getSummary() {
         DashboardStats domainStats = dashboardUseCase.getGlobalStats();
 
-        // Construction du DTO imbriqué pour matcher l'interface TS
         DashboardResponseDTO response = new DashboardResponseDTO(
                 new DashboardResponseDTO.DashboardStatsResponse(
                         domainStats.totalSpots(),
                         domainStats.occupiedSpots(),
-                        domainStats.distribution().availableElectric(), // On mappe ici
-                        5.4,   // Valeur simulée pour la trend
-                        true   // Valeur simulée
+                        domainStats.distribution().availableElectric(),
+                        5.4,
+                        true
                 ),
                 new DashboardResponseDTO.ElectricDistributionResponse(
                         domainStats.distribution().occupiedElectric(),

@@ -4,7 +4,6 @@ import {
 } from 'recharts';
 import './Charts.css';
 
-// 1. On définit l'interface pour accepter les données du service
 interface OccupationAreaChartProps {
     data: {
         day: string;
@@ -13,7 +12,6 @@ interface OccupationAreaChartProps {
     }[];
 }
 
-// 2. On ajoute { data } dans les parenthèses pour recevoir les props
 export default function OccupationAreaChart({ data }: OccupationAreaChartProps) {
     return (
         <div className="chart-card">
@@ -24,7 +22,7 @@ export default function OccupationAreaChart({ data }: OccupationAreaChartProps) 
 
             <div className="chart-card__content">
                 <ResponsiveContainer width="100%" height={300}>
-                    {/* 3. Recharts utilise maintenant le 'data' qui vient des props */}
+                    {}
                     <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
@@ -47,7 +45,7 @@ export default function OccupationAreaChart({ data }: OccupationAreaChartProps) 
 
                         <Area
                             type="monotone"
-                            dataKey="total" // Doit matcher la clé dans ton adapter
+                            dataKey="total"
                             stroke="#6366f1"
                             strokeWidth={3}
                             fillOpacity={1}
@@ -55,7 +53,7 @@ export default function OccupationAreaChart({ data }: OccupationAreaChartProps) 
                         />
                         <Area
                             type="monotone"
-                            dataKey="electric" // Doit matcher la clé dans ton adapter
+                            dataKey="electric"
                             stroke="#10b981"
                             strokeWidth={3}
                             fillOpacity={1}
