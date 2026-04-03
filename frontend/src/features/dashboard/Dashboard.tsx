@@ -28,7 +28,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         // Garde de sécurité : redirection si pas manager
-        if (user && user.role !== 'MANAGER') {
+        if (user && (user.role !== 'MANAGER' && user.role !== 'SECRETARY')) {
             navigate('/');
             return;
         }
@@ -37,7 +37,7 @@ export default function Dashboard() {
     }, [user, navigate]);
 
     // On ne rend rien si l'utilisateur n'a pas le bon rôle pendant la redirection
-    if (user?.role !== 'MANAGER') {
+    if (user?.role !== 'MANAGER' && user?.role !== 'SECRETARY') {
         return null;
     }
 

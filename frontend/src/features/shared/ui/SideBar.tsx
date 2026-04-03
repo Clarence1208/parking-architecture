@@ -6,7 +6,7 @@ interface NavItem {
   to: string;
   label: string;
   icon: React.ReactNode;
-  requiredRole?: string;
+  requiredRole?: string[];
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     to: "/dashboard",
     label: "Dashboard",
-      requiredRole: "MANAGER",
+      requiredRole: ["ADMIN", "SECRETARY"],
     icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -47,7 +47,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     to: "/qr-codes",
     label: "QR Codes",
-    requiredRole: "SECRETARY",
+    requiredRole: ["SECRETARY"],
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="2" width="6" height="6" rx="1" />
@@ -88,7 +88,7 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="sidebar__nav">
         {NAV_ITEMS
-          .filter(item => !item.requiredRole || item.requiredRole === user?.role)
+          .filter(item => !item.requiredRole || (user !== null && item.requiredRole.includes(user.role)))
           .map((item) => (
           <NavLink
             key={item.to}
