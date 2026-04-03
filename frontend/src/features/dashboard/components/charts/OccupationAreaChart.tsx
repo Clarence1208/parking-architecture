@@ -2,7 +2,7 @@ import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts';
-import './Charts.css';
+import './charts.css';
 
 interface OccupationAreaChartProps {
     data: {

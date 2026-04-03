@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import './Charts.css';
+import './charts.css';
 
 // 1. On définit l'interface pour les données que le dashboard va envoyer
 interface ElectricDonutChartProps {
