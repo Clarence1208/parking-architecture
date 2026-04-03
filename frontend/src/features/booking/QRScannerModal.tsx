@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { bookingService } from '../../services/booking/bookingService';
+import { bookingService } from '../../services/booking/bookingService.ts';
 import type { CheckInResponse } from '../../services/booking/interfaces/bookingInterface';
 
 interface QRScannerModalProps {

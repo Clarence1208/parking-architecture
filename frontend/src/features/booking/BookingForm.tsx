@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../store/AuthContext';
-import { bookingService } from '../../services/booking/bookingService.tsx';
+import { bookingService } from '../../services/booking/bookingService.ts';
 import './BookingForm.css';
 
 interface Props {

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../store/AuthContext';
 import { authService } from '../../services/auth/authService';
-import { bookingService } from '../../services/booking/bookingService';
+import { bookingService } from '../../services/booking/bookingService.ts';
 import type { CheckInResponse } from '../../services/booking/interfaces/bookingInterface';
 import './CheckInPage.css';
 

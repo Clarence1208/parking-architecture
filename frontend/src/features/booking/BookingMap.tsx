@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { bookingService } from '../../services/booking/bookingService.tsx';
+import { bookingService } from '../../services/booking/bookingService.ts';
 import { BookingForm } from './BookingForm.tsx';
 import QRScannerModal from './QRScannerModal.tsx';
 import { useAuth } from '../../store/AuthContext';
