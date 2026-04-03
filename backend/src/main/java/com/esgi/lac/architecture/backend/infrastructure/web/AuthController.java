@@ -5,12 +5,11 @@ import com.esgi.lac.architecture.backend.domain.model.AuthResult;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.AuthResponse;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.LoginRequest;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.RegisterRequest;
+import com.esgi.lac.architecture.backend.infrastructure.web.mapper.AuthControllerMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.esgi.lac.architecture.backend.domain.model.UserRole;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -19,25 +18,23 @@ import java.util.List;
 public class AuthController {
 
     private final AuthUseCase authUseCase;
+    private final AuthControllerMapper authControllerMapper;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         AuthResult result = authUseCase.register(request.email(), request.password(), request.role());
-        return ResponseEntity.ok(new AuthResponse(result.token(), result.user().getEmail(), result.user().getRole()));
+        return ResponseEntity.ok(authControllerMapper.toAuthResponse(result));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResult result = authUseCase.login(request.email(), request.password());
-        return ResponseEntity.ok(new AuthResponse(result.token(), result.user().getEmail(), result.user().getRole()));
+        return ResponseEntity.ok(authControllerMapper.toAuthResponse(result));
     }
 
     @GetMapping("/roles")
     public ResponseEntity<List<RoleResponse>> getRoles() {
-        List<RoleResponse> roles = Arrays.stream(UserRole.values())
-                .map(role -> new RoleResponse(role.name(), role.getMaxNumberOfBookingDays()))
-                .toList();
-        return ResponseEntity.ok(roles);
+        return ResponseEntity.ok(authControllerMapper.toRoleResponseList());
     }
 
     public record RoleResponse(String name, int maxNumberOfBookingDays) {}

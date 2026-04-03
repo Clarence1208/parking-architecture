@@ -3,6 +3,7 @@ package com.esgi.lac.architecture.backend.infrastructure.persistence;
 import com.esgi.lac.architecture.backend.domain.model.User;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import com.esgi.lac.architecture.backend.infrastructure.persistence.entity.UserEntity;
+import com.esgi.lac.architecture.backend.infrastructure.persistence.mapper.UserEntityMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
@@ -25,6 +27,9 @@ class UserRepositoryAdapterTest {
 
     @Mock
     private JpaUserRepository jpaUserRepository;
+
+    @Spy
+    private UserEntityMapper userEntityMapper = new UserEntityMapper();
 
     @InjectMocks
     private UserRepositoryAdapter adapter;

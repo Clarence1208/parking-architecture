@@ -9,6 +9,7 @@ import com.esgi.lac.architecture.backend.domain.exception.BookingQuotaExceededEx
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.BookingSpotStatus;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
+import com.esgi.lac.architecture.backend.infrastructure.web.mapper.BookingControllerMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,7 +45,7 @@ class BookingControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new BookingController(bookingUseCase))
+        mockMvc = MockMvcBuilders.standaloneSetup(new BookingController(bookingUseCase, new BookingControllerMapper()))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
 

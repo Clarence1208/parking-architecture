@@ -3,6 +3,7 @@ package com.esgi.lac.architecture.backend.infrastructure.persistence;
 import com.esgi.lac.architecture.backend.domain.model.Booking;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
 import com.esgi.lac.architecture.backend.infrastructure.persistence.entity.BookingEntity;
+import com.esgi.lac.architecture.backend.infrastructure.persistence.mapper.BookingEntityMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -26,6 +28,9 @@ class BookingRepositoryAdapterTest {
 
     @Mock
     private JpaBookingRepository jpaBookingRepository;
+
+    @Spy
+    private BookingEntityMapper bookingEntityMapper = new BookingEntityMapper();
 
     @InjectMocks
     private BookingRepositoryAdapter adapter;

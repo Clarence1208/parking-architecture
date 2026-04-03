@@ -5,6 +5,7 @@ import com.esgi.lac.architecture.backend.application.usecase.AuthUseCase;
 import com.esgi.lac.architecture.backend.domain.model.AuthResult;
 import com.esgi.lac.architecture.backend.domain.model.User;
 import com.esgi.lac.architecture.backend.domain.model.UserRole;
+import com.esgi.lac.architecture.backend.infrastructure.web.mapper.AuthControllerMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,7 +37,7 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authUseCase))
+        mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authUseCase, new AuthControllerMapper()))
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }

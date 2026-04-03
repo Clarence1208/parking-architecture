@@ -8,6 +8,7 @@ import com.esgi.lac.architecture.backend.infrastructure.web.dto.BookingResponseD
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.CheckInRequestDTO;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.CheckInResponseDTO;
 import com.esgi.lac.architecture.backend.infrastructure.web.dto.UserBookingResponseDTO;
+import com.esgi.lac.architecture.backend.infrastructure.web.mapper.BookingControllerMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,11 @@ import org.springframework.security.core.Authentication;
 public class BookingController {
 
     private final BookingUseCase bookingUseCase;
+    private final BookingControllerMapper bookingControllerMapper;
 
-    public BookingController(BookingUseCase bookingUseCase) {
+    public BookingController(BookingUseCase bookingUseCase, BookingControllerMapper bookingControllerMapper) {
         this.bookingUseCase = bookingUseCase;
+        this.bookingControllerMapper = bookingControllerMapper;
     }
 
     @PostMapping("/reserve")
@@ -33,15 +36,7 @@ public class BookingController {
         String email = authentication.getName();
         String roleString = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
-        Booking booking = new Booking(
-                null,
-                dto.spotId(),
-                email,
-                UserRole.valueOf(roleString),
-                LocalDate.parse(dto.startDate()),
-                LocalDate.parse(dto.endDate()),
-                false
-        );
+        Booking booking = bookingControllerMapper.toBooking(dto, email, UserRole.valueOf(roleString));
 
         bookingUseCase.reserveSpot(booking);
         return ResponseEntity.ok().build();
@@ -51,17 +46,8 @@ public class BookingController {
     public ResponseEntity<List<BookingResponseDTO>> getSpots(@RequestParam(required = false) String date) {
         LocalDate targetDate = (date != null) ? LocalDate.parse(date) : LocalDate.now();
 
-        List<BookingResponseDTO> response = bookingUseCase.getSpotsByDate(targetDate)
-                .stream()
-                .map(spot -> new BookingResponseDTO(
-                        spot.bookingId(),
-                        spot.spotId(),
-                        spot.occupied(),
-                        spot.reservedBy(),
-                        spot.date(),
-                        spot.checkedIn()
-                ))
-                .toList();
+        List<BookingResponseDTO> response = bookingControllerMapper.toBookingResponseList(
+                bookingUseCase.getSpotsByDate(targetDate));
 
         return ResponseEntity.ok(response);
     }
@@ -96,32 +82,15 @@ public class BookingController {
         String email = authentication.getName();
         Booking confirmed = bookingUseCase.checkIn(dto.spotId(), email);
 
-        CheckInResponseDTO response = new CheckInResponseDTO(
-                confirmed.id(),
-                confirmed.spotId(),
-                confirmed.startDate(),
-                confirmed.endDate(),
-                confirmed.checkedIn()
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(bookingControllerMapper.toCheckInResponse(confirmed));
     }
 
     @GetMapping("/my-bookings")
     public ResponseEntity<List<UserBookingResponseDTO>> getMyBookings(Authentication authentication) {
-
         String email = authentication.getName();
 
-        List<UserBookingResponseDTO> response = bookingUseCase.getUserBookings(email)
-                .stream()
-                .map(b -> new UserBookingResponseDTO(
-                        b.id(),
-                        b.spotId(),
-                        b.startDate(),
-                        b.endDate(),
-                        b.checkedIn()
-                ))
-                .toList();
+        List<UserBookingResponseDTO> response = bookingControllerMapper.toUserBookingResponseList(
+                bookingUseCase.getUserBookings(email));
 
         return ResponseEntity.ok(response);
     }
